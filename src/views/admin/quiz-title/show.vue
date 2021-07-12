@@ -300,9 +300,6 @@ export default {
     addQuizTableDialog: false,
     editedIndex: -1,
     editedItem: {
-      QuizLevelID: '',
-      QuizSectionID: '',
-      QuizTitleID: '',
       Question: '',
       Answer: '',
       Choice1: '',
@@ -317,14 +314,6 @@ export default {
       Choice2: '',
       Choice3: ''
     },
-    quizLevels: [],
-    quizSection: '',
-    quizSections: [],
-    initQuizSectionsChoices: '',
-    quizSectionsChoices: [],
-    initQuizTitlesChoices: '',
-    quizTitlesChoices: [],
-    quizTitles: [],
     quizTitle: '',
     quizzes: [],
     selectRules: {
@@ -391,20 +380,12 @@ export default {
     editItem (item) {
       this.editedIndex = this.quizzes.indexOf(item)
       this.editedItem = Object.assign({}, item)
-      this.editedItem.QuizLevelID = this.quizTitle.QuizSection.QuizLevelID
-      this.editedItem.QuizSectionID = this.quizTitle.QuizSectionID
-      this.editedItem.QuizTitleID = this.quizTitle.ID
-      this.quizSectionsChoices = this.initQuizSectionsChoices
-      this.quizTitlesChoices = this.initQuizTitlesChoices
       this.dialog = true
     },
     deleteItem (item) {
       this.editedIndex = this.quizzes.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
-    },
-    deleteItems () {
-      alert(this.selected)
     },
     deleteItemConfirm (item) {
       this.$adminHttp.delete(`/admin/quizzes/${item.ID}`)
@@ -440,21 +421,6 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
-    },
-    getQuizSections () {
-      this.$adminHttp.get(`/admin/quiz_sections/get_quiz_sections_by_quiz_level_id/${this.editedItem.QuizLevelID}`)
-        .then(response => {
-          if (response.data.ErrorMessages != null) {
-            this.errorMessages = response.data.ErrorMessages
-          } else {
-            this.quizSectionsChoices = response.data
-            this.editedItem.QuizSectionID = 0
-          }
-        })
-        .catch(error => {
-          console.log(error)
-          this.errorMessages = ['Something went wrong. Please try again']
-        })
     },
     validation () {
       return this.$refs.form.validate() ? true : false
