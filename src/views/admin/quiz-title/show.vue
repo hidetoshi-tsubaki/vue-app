@@ -46,11 +46,10 @@
           <v-btn
             small
             color="error"
-            @click="alert"
-            :disabled="selectedItems"
+            @click="removeItems"
+            :disabled="!removeBtn"
           >
-            <v-icon left>mdi-delete</v-icon>
-            Delete
+            Remove Quizzes from {{ quizTitle.Name }}
           </v-btn>
           <v-spacer></v-spacer>
           <v-dialog
@@ -161,13 +160,31 @@
               </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-dialog v-model="dialogConfirm" max-width="600px">
             <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this Quiz?</v-card-title>
+              <v-card-title class="text-h5 py-8">
+                Are you sure you want to
+                <span class="font-weight-bold mx-2">{{ actionName }}</span>
+                this Quiz?
+              </v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
+                <v-btn 
+                  v-if="editedIndex == -1"
+                  color="blue darken-1"
+                  text
+                  @click="removeItemsConfirm"
+                >
+                  OK
+                </v-btn>
+                <v-btn
+                  v-if="editedIndex != -1"
+                  color="blue darken-1"
+                  text
+                  @click="deleteItemConfirm(editedItem)">
+                  OK
+                </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -296,7 +313,7 @@ export default {
     search: '',
     selectedItems: [],
     dialog: false,
-    dialogDelete: false,
+    dialogConfirm: false,
     addQuizTableDialog: false,
     editedIndex: -1,
     editedItem: {
@@ -332,13 +349,22 @@ export default {
   computed: {
     formTitle () {
       return this.editedIndex === -1 ? 'New' : 'Edit'
+    },
+    actionName () {
+      return this.editedIndex === -1 ? 'remove' : 'delete'
+    },
+    removeBtn () {
+      return this.selectedItems.length
+    },
+    removeQuizIds () {
+      return this.selectedItems.map(item => item.ID)
     }
   },
   watch: {
     dialog (val) {
       val || this.close()
     },
-    dialogDelete (val) {
+    dialogConfirm (val) {
       val || this.closeDelete()
     },
   },
@@ -346,10 +372,6 @@ export default {
     this.fetchData()
   },
   methods: {
-    alert () {
-      const ids = this.selectedItems.map(item => item.ID)
-      alert(ids)
-    },
     ...mapActions({ setFlashMessage: 'flashMessage/set' }),
     fetchData: function () {
       this.loading = true
@@ -362,13 +384,7 @@ export default {
               message: 'Failed to fetch data ...'
             })
           } else {
-            this.quizLevels = response.data.QuizLevels
-            this.quizSection = response.data.QuizTitle.QuizSection
-            this.quizSections = response.data.QuizSections
             this.quizTitle = response.data.QuizTitle
-            this.quizTitles = response.data.QuizTitles
-            this.initQuizSectionsChoices = this.quizSections
-            this.initQuizTitlesChoices = this.quizTitles
             this.quizzes = response.data.Quizzes
           }
           this.loading = false
@@ -385,7 +401,7 @@ export default {
     deleteItem (item) {
       this.editedIndex = this.quizzes.indexOf(item)
       this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+      this.dialogConfirm = true
     },
     deleteItemConfirm (item) {
       this.$adminHttp.delete(`/admin/quizzes/${item.ID}`)
@@ -397,7 +413,7 @@ export default {
             })
           } else {
             this.quizzes.splice(this.editedIndex, 1)
-            this.closeDelete()
+            this.closeConfirm()
             this.setFlashMessage({
               type: 'success', message: "Delete successfully"
             })
@@ -407,6 +423,31 @@ export default {
           console.log(error)
         })
     },
+    removeItems() {
+      this.dialogConfirm = true
+    },
+    removeItemsConfirm () {
+      const selectedQuizIds = this.selectedItems.map(item => item.ID)
+      this.$adminHttp.put(`/admin/quiz_titles/${this.quizTitle.ID}/remove_quizzes`, {
+        QuizIds: selectedQuizIds,
+      })
+      .then(response => {
+        if (response.data != null) {
+          console.log(response.data)
+          this.setFlashMessage({
+            type: 'warning', message: 'Failed to delete quizzes'
+          })
+        } else {
+          this.quizzes = this.quizzes.filter( function (item) {
+            return selectedQuizIds.includes(item.ID) === false
+          })
+        }
+        this.closeConfirm()
+        this.setFlashMessage({
+          type: 'success', message: 'Remove quizzes successfully'
+        })
+      })
+    },
     close () {
       this.dialog = false
       this.$nextTick(() => {
@@ -415,8 +456,8 @@ export default {
         this.errorMessages = []
       })
     },
-    closeDelete () {
-      this.dialogDelete = false
+    closeConfirm () {
+      this.dialogConfirm = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
