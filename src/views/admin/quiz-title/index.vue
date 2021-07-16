@@ -17,98 +17,107 @@
       :search='search'
       :loading="loading"
       loading-text="Loading... Please wait"
+      item-key="ID"
+      show-select
+      v-model="selectedItems"
     >
       <template v-slot:top>
-        <v-spacer></v-spacer>
         <v-toolbar flat>
+          <v-btn
+            small
+            color="error"
+            @click="deleteItems"
+            :disabled="!deleteBtn"
+          >
+            Delete Quiz Titles
+          </v-btn>
+          <v-spacer></v-spacer>
           <v-dialog
             v-model="dialog"
             max-width="600px"
           >
-            <template v-slot:activator="{ on, attrs }">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              small
+              color="primary"
+              v-bind="attrs"
+              v-on="on"
+            >
+              New
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">{{ formTitle }} Quiz Title</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
+                <v-form ref="form">
+                  <MySelect
+                    v-model="editedItem.QuizLevelID"
+                    label="Quiz Level"
+                    :items="quizLevels"
+                    itemText="Name"
+                    itemValue="ID"
+                    @change="getQuizSections"
+                  />
+                  <MySelect
+                    v-model="editedItem.QuizSectionID"
+                    label="Quiz Section"
+                    :items="quizSections"
+                    itemText="Name"
+                    itemValue="ID"
+                  />
+                  <MyInput
+                    v-model="editedItem.Name"
+                    label="Name"
+                    v-bind="nameRules"
+                  />
+                  <MySelect
+                    v-model="editedItem.Rate"
+                    label="Rate"
+                    :items="rateArray"
+                  />
+                </v-form>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
-                small
-                color="primary"
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
+                color="blue darken-1"
+                text
+                @click="close"
               >
-                New
+                Cancel
               </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ formTitle }} Quiz Title</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
-                  <v-form ref="form">
-                    <MySelect
-                      v-model="editedItem.QuizLevelID"
-                      label="Quiz Level"
-                      :items="quizLevels"
-                      itemText="Name"
-                      itemValue="ID"
-                      @change="getQuizSections"
-                    />
-                    <MySelect
-                      v-model="editedItem.QuizSectionID"
-                      label="Quiz Section"
-                      :items="quizSections"
-                      itemText="Name"
-                      itemValue="ID"
-                    />
-                    <MyInput
-                      v-model="editedItem.Name"
-                      label="Name"
-                      v-bind="nameRules"
-                    />
-                    <MySelect
-                      v-model="editedItem.Rate"
-                      label="Rate"
-                      :items="rateArray"
-                    />
-                  </v-form>
-                </v-container>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="close"
-                >
-                  Cancel
-                </v-btn>
-                <v-btn
-                  v-if="editedIndex != -1"
-                  color="blue darken-1"
-                  text
-                  @click="update"
-                >
-                  Update
-                </v-btn>
-                <v-btn
-                  v-if="editedIndex === -1"
-                  color="blue darken-1"
-                  text
-                  @click="create"
-                >
-                  create
-                </v-btn>
-              </v-card-actions>
+              <v-btn
+                v-if="editedIndex != -1"
+                color="blue darken-1"
+                text
+                @click="update"
+              >
+                Update
+              </v-btn>
+              <v-btn
+                v-if="editedIndex === -1"
+                color="blue darken-1"
+                text
+                @click="create"
+              >
+                create
+              </v-btn>
+            </v-card-actions>
             </v-card>
           </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-dialog v-model="dialogDelete" max-width="600px">
             <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+              <v-card-title class="text-h5">Are you sure you want to delete those items?</v-card-title>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
+                <v-btn color="blue darken-1" text @click="deleteItemsConfirm">OK</v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
@@ -137,13 +146,6 @@
           @click="editItem(item)"
         >
           mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          color="red"
-          @click="deleteItem(item)"
-        >
-          mdi-delete
         </v-icon>
       </template>
     </v-data-table>
@@ -202,6 +204,7 @@ export default {
       }
     ],
     search: '',
+    selectedItems: [],
     dialog: false,
     dialogDelete: false,
     editedIndex: -1,
@@ -230,15 +233,18 @@ export default {
   computed: {
     formTitle () {
       return this.editedIndex === -1 ? 'New' : 'Edit'
+    },
+    deleteBtn () {
+      return this.selectedItems.length
+    },
+    deleteQuizTitleIds () {
+      return this.selectedItems.map(item => item.ID)
     }
   },
   watch: {
     dialog (val) {
       val || this.close()
-    },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    },
+    }
   },
   mounted () {
     this.fetchData()
@@ -273,30 +279,38 @@ export default {
       this.getQuizSections()
       this.dialog = true
     },
-    deleteItem (item) {
-      this.editedIndex = this.quizTitles.indexOf(item)
-      this.editedItem = Object.assign({}, item)
+    deleteItems () {
       this.dialogDelete = true
     },
-    deleteItemConfirm (item) {
-      this.$adminHttp.delete(`/admin/quiz_titles/${item.ID}`)
-        .then(response => {
-          if (response.data != null) {
-            console.log(response.data)
-            this.setFlashMessage({
-              type: 'warning', message: "Failed to delete ..."
-            })
-          } else {
-            this.quizTitles.splice(this.editedIndex, 1)
-            this.closeDelete()
-            this.setFlashMessage({
-              type: 'success', message: "Delete successfully"
-            })
-          }
+    deleteItemsConfirm () {
+      const selectedQuizTitleIds = this.selectedItems.map(item => item.ID)
+      this.$adminHttp.request({
+        method: 'delete',
+        url: "/admin/quiz_titles",
+        data: { QuizTitleIds: selectedQuizTitleIds }
+      })
+      .then(response => {
+        if (response.data != null) {
+          console.log(response.data)
+          this.setFlashMessage({
+            type: 'warning', message: 'Failed to delete quizzes'
+          })
+        } else {
+          this.quizTitles = this.quizTitles.filter( function (item) {
+            return selectedQuizTitleIds.includes(item.ID) === false
+          })
+        }
+        this.closeDelete()
+        this.setFlashMessage({
+          type: 'success', message: 'Remove quizzes successfully'
         })
-        .catch(error => {
-          console.log(error)
+      })
+      .catch((error) => {
+        console.log(error)
+        this.setFlashMessage({
+          type: 'warning', message: 'Failed to delete quizzes'
         })
+      })
     },
     close () {
       this.dialog = false
@@ -308,10 +322,6 @@ export default {
     },
     closeDelete () {
       this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
     },
     getQuizSections () {
       this.$adminHttp.get(`/admin/quiz_sections/get_quiz_sections_by_quiz_level_id/${this.editedItem.QuizLevelID}`)
