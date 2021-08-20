@@ -3,18 +3,11 @@
     <v-card-title>
       Quiz Levels
       <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        hide-details
-      ></v-text-field>
     </v-card-title>
     <v-data-table
       :headers="headers"
       :items="quizLevels"
       :sort-by="headers"
-      :search='search'
       :loading="loading"
       loading-text="Loading... Please wait"
       item-key="ID"
@@ -106,12 +99,12 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.CreatedAt, 'yyyy/M/d H:m:s') }}
+      <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{ChangeFormat}">
+        {{ ChangeFormat(item.CreatedAt, 'yyyy/M/d H:m:s') }}
       </template>
-      <template v-slot:item.UpdatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.UpdatedAt, 'yyyy/M/d H:m:s') }}
-      </template>
+      <template v-slot:item.UpdatedAt="{ item }" v-slot:activator="{ChangeFormat}">
+        {{ ChangeFormat(item.UpdatedAt, 'yyyy/M/d H:m:s') }}
+      </template> 
       <template v-slot:item.actions="{ item }">
         <router-link :to="{ name: 'ShowQuizLevel', params: { id: item.ID }}">
           <v-icon
@@ -171,7 +164,6 @@ export default {
             sortable: false
         }
       ],
-      search: '',
       selectedItems: [],
       dialog: false,
       dialogDelete: false,
@@ -196,9 +188,6 @@ export default {
     },
     deleteBtn () {
       return this.selectedItems.length
-    },
-    deleteQuizTitleIds () {
-      return this.selectedItems.map(item => item.ID)
     }
   },
   watch: {
@@ -236,34 +225,6 @@ export default {
       this.editedIndex = this.quizLevels.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
-    },
-    deleteItems () {
-      this.dialogDelete = true
-    },
-    deleteItemsConfirm () {
-      const selectedQuizLevelIds = this.selectedItems.map(item => item.ID)
-      this.$adminHttp.request({
-        method: 'delete',
-        url: "/admin/quiz_levels",
-        data: { QuizLevelIds: selectedQuizLevelIds }
-      })
-        .then(response => {
-          if (response.data != null) {
-            console.log(response.data)
-            this.setFlashMessage({ type: 'warning', message: "Failed to delete ..."})
-          } else {
-          this.quizLevels = this.quizLevels.filter( function (item) {
-            return selectedQuizLevelIds.includes(item.ID) === false
-          })
-          }
-          this.closeDelete()
-          this.setFlashMessage({
-            type: 'success', message: "Delete successfully"
-          })
-        })
-        .catch(error => {
-          console.log(error)
-        })
     },
     close () {
       this.dialog = false
@@ -327,6 +288,34 @@ export default {
         })
       }
     },
+    deleteItems () {
+      this.dialogDelete = true
+    },
+    deleteItemsConfirm () {
+      const selectedQuizLevelIds = this.selectedItems.map(item => item.ID)
+      this.$adminHttp.request({
+        method: 'delete',
+        url: "/admin/quiz_levels",
+        data: { DeleteItemIds: selectedQuizLevelIds }
+      })
+        .then(response => {
+          if (response.data != null) {
+            console.log(response.data)
+            this.setFlashMessage({ type: 'warning', message: "Failed to delete ..."})
+          } else {
+          this.quizLevels = this.quizLevels.filter( function (item) {
+            return selectedQuizLevelIds.includes(item.ID) === false
+          })
+          }
+          this.closeDelete()
+          this.setFlashMessage({
+            type: 'success', message: "Delete successfully"
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
   }
 }
 </script>
