@@ -6,25 +6,28 @@
     :item-text="itemText"
     :item-value="itemValue"
     :rules="rules"
+    :multiple="multiple"
     @change="change"
-  />
+  >
+  </v-select>
 </template>
 
 <script>
 export default {
   name: "MySelect",
   props: {
-    value: { type: Number, required: true },
+    value: { type: [Number, Array], required: true },
     items: { type: Array },
     itemText: { type: String },
     itemValue: { type: String},
-    label: { type: String, required: true },
+    label: { type: String },
+    multiple: { type: Boolean, default: false },
     required: { type: Boolean, default: false }
   },
   computed: {
     selectValue: {
       get() {
-        return this.value
+        return Number(this.value)
       },
       set(value) {
         this.$emit("input", value)
