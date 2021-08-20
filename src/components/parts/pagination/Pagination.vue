@@ -5,7 +5,7 @@
       :length="culculatePageCount"
       @input="getDataPerPage"
       class="my-4"
-    ></v-pagination>
+    />
   </div>
 </template>
 

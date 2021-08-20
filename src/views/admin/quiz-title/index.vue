@@ -8,17 +8,17 @@
           vertical
         ></v-divider>
         <v-spacer></v-spacer>
-      <div align="right">
-        <p class="mb-0">
-          Search Condition
-          <v-switch
-            v-model="showSearchCondition"
-            :label="showSearchCondition ? 'show': 'hide'"
-            class="my-0 py-0 d-inline-flex"
-          >
-          </v-switch>
-        </p>
-      </div>
+        <div align="right">
+          <p class="mb-0">
+            Search Condition
+            <v-switch
+              v-model="showSearchCondition"
+              :label="showSearchCondition ? 'show': 'hide'"
+              class="my-0 py-0 d-inline-flex"
+            >
+            </v-switch>
+          </p>
+        </div>
       </v-card-title>
       <v-card
         v-if="showSearchCondition"

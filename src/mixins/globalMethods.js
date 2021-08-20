@@ -97,7 +97,8 @@ export default {
     MakeQueryStringFromSearchConditions () {
       const queryString = Object.keys(this.searchConditions)
       .filter(key => this.HasAnyValue(this.searchConditions[key]))
-      .map(key => key + '=' + this.searchConditions[key]).join('&')
+      .map(key => key + '=' + this.searchConditions[key])
+      .join('&')
       return queryString
     },
     ParseQueryAndSetSearchConditions () {

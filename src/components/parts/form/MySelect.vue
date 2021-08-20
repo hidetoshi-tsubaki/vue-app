@@ -37,9 +37,7 @@ export default {
       const rules = []
 
       if (this.required) {
-        const rule =
-          v => !!v || `${this.label} is required`
-
+        const rule = v => !!v || `${this.label} is required`
         rules.push(rule)
       }
 

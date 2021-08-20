@@ -30,7 +30,7 @@ export default {
     value: { type: String },
     label: { type: String },
     type: { type: String, default: 'Date' },
-    prependIcon: { type: String},
+    prependIcon: { type: String },
     required: { type: Boolean, default: false },
     max: { type: String },
     min: { type: String }
