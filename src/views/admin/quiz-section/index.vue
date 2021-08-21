@@ -2,24 +2,17 @@
   <v-card>
     <v-card-title>
       Quiz Sections
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        hide-details
-      ></v-text-field>
     </v-card-title>
     <v-data-table
       :headers="headers"
       :items="quizSections"
       :sort-by="headers"
-      :search='search'
       :loading="loading"
       loading-text="Loading... Please wait"
       item-key="ID"
       show-select
       v-model="selectedItems"
+
     >
       <template v-slot:top>
         <v-toolbar flat>
@@ -112,11 +105,11 @@
           </v-dialog>
         </v-toolbar>
       </template>
-      <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.CreatedAt, 'yyyy/M/d H:m') }}
+      <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{ChangeFormat}">
+        {{ ChangeFormat(item.CreatedAt, 'yyyy/M/d H:m') }}
       </template>
-      <template v-slot:item.UpdatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.UpdatedAt, 'yyyy/M/d H:m') }}
+      <template v-slot:item.UpdatedAt="{ item }" v-slot:activator="{ChangeFormat}">
+        {{ ChangeFormat(item.UpdatedAt, 'yyyy/M/d H:m') }}
       </template>
       <template v-slot:item.actions="{ item }">
         <router-link :to="{ name: 'ShowQuizSection', params: { id: item.ID }}">
@@ -136,6 +129,7 @@
           mdi-pencil
         </v-icon>
       </template>
+
     </v-data-table>
   </v-card>
 </template>
@@ -183,7 +177,6 @@ export default {
           sortable: false
       }
     ],
-    search: '',
     selectedItems: [],
     dialog: false,
     dialogDelete: false,
@@ -216,9 +209,6 @@ export default {
     },
     deleteBtn () {
       return this.selectedItems.length
-    },
-    deleteQuizTitleIds () {
-      return this.selectedItems.map(item => item.ID)
     }
   },
   watch: {
@@ -259,35 +249,8 @@ export default {
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
-    deleteItems () {
-      this.dialogDelete = true
-    },
-    deleteItemsConfirm () {
-      const selectedQuizSectionIds = this.selectedItems.map(item => item.ID)
-      this.$adminHttp.request({
-        method: 'delete',
-        url: "/admin/quiz_sections",
-        data: { QuizSectionIds: selectedQuizSectionIds }
-      })
-        .then(response => {
-          if (response.data != null) {
-            console.log(response.data)
-            this.setFlashMessage({
-              type: 'warning', message: "Failed to delete ..."
-            })
-          } else {
-            this.quizSections = this.quizSections.filter( function (item) {
-              return selectedQuizSectionIds.includes(item.ID) === false
-            })
-          }
-          this.closeDelete()
-          this.setFlashMessage({
-            type: 'success', message: "Delete quiz sections successfully"
-          })
-        })
-        .catch(error => {
-          console.log(error)
-        })
+    validation () {
+      return this.$refs.form.validate() ? true : false
     },
     close () {
       this.dialog = false
@@ -303,9 +266,6 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
-    },
-    validation () {
-      return this.$refs.form.validate() ? true : false
     },
     create () {
       if (this.validation()) {
@@ -354,6 +314,36 @@ export default {
           })
         })
       }
+    },
+    deleteItems () {
+      this.dialogDelete = true
+    },
+    deleteItemsConfirm () {
+      const selectedItemIds = this.selectedItems.map(item => item.ID)
+      this.$adminHttp.request({
+        method: 'delete',
+        url: "/admin/quiz_sections",
+        data: { deleteItemIds: selectedItemIds }
+      })
+        .then(response => {
+          if (response.data != null) {
+            console.log(response.data)
+            this.setFlashMessage({
+              type: 'warning', message: "Failed to delete ..."
+            })
+          } else {
+            this.quizSections = this.quizSections.filter( function (item) {
+              return selectedItemIds.includes(item.ID) === false
+            })
+          }
+          this.closeDelete()
+          this.setFlashMessage({
+            type: 'success', message: "Delete quiz sections successfully"
+          })
+        })
+        .catch(error => {
+          console.log(error)
+        })
     }
   }
 }
