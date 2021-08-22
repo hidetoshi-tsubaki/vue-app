@@ -16,7 +16,7 @@
 export default {
   name: "MySelect",
   props: {
-    value: { type: [Number, Array], required: true },
+    value: { type: [ Number, Array ], required: true },
     items: { type: Array },
     itemText: { type: String },
     itemValue: { type: String},
@@ -27,7 +27,7 @@ export default {
   computed: {
     selectValue: {
       get() {
-        return Number(this.value)
+        return this.value
       },
       set(value) {
         this.$emit("input", value)

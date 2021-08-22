@@ -2,11 +2,11 @@
   <div>
     <v-card class="px-2 pt-2">
       <v-card-title>
-        Quiz Titles
         <v-divider
-          class="mx-4"
+          class="mr-4"
           vertical
         ></v-divider>
+        Quiz Titles
         <v-spacer></v-spacer>
         <div align="right">
           <p class="mb-0">
@@ -453,9 +453,13 @@ export default {
     editItem (item) {
       this.editedItem = Object.assign({}, item)
       this.editedIndex = this.tableData.indexOf(item)
-      this.editedItem.QuizLevelID = item.QuizSection.QuizLevel.ID
-      this.editedItem.QuizSectionID = item.QuizSection.ID
-      this.setQuizSectionsForSelect('quizSections', this.editedItem)
+      this.editedItem.QuizLevelID = item.QuizLevelID
+      this.editedItem.QuizSectionID = item.QuizSectionID
+      this.SetCategoryOptionsForSelect(
+        'admin/quiz_sections/get_by_quiz_level_ids',
+        'quizSections',
+        item.QuizLevelID
+      )
       this.dialog = true
     },
     close () {
