@@ -104,14 +104,23 @@ export default {
     ParseQueryAndSetSearchConditions () {
       const params = this.$route.query
       let queryParams = Object.assign({}, params)
-      const keys = ['selectedQuizLevelIDs', 'selectedQuizSectionsIDs', 'selectedQuizTitlesIDs', 'page']
-      keys.forEach(key => {
+      const selectedIDsKeys = [
+        'selectedQuizLevelIDs',
+        'selectedQuizSectionsIDs',
+        'selectedQuizTitlesIDs',
+      ]
+      selectedIDsKeys.forEach(key => {
         if (Array.isArray(queryParams[key])) {
           queryParams[key] = queryParams[key].map(Number)
         } else if (queryParams[key] != null){
           queryParams[key] = [Number(queryParams[key])]
         }
       })
+      const paginationKeys = ["page", "pageSize"]
+      paginationKeys.forEach(key => {
+        queryParams[key] = Number(queryParams[key])
+      })
+      console.log("pageSize is")
       Object.assign(this.searchConditions, queryParams)
     },
     ClearSearchConditions () {
