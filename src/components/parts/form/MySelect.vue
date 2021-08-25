@@ -7,7 +7,11 @@
     :item-value="itemValue"
     :rules="rules"
     :multiple="multiple"
+    :chips="chips"
+    :clearable="clearable"
     @change="change"
+    @focus="focus"
+    @click:clear="clear"
   >
   </v-select>
 </template>
@@ -16,13 +20,15 @@
 export default {
   name: "MySelect",
   props: {
-    value: { type: [ Number, Array ], required: true },
-    items: { type: Array },
-    itemText: { type: String },
-    itemValue: { type: String},
-    label: { type: String },
-    multiple: { type: Boolean, default: false },
-    required: { type: Boolean, default: false }
+    value:      { type: [ Number, Array ], required: true },
+    items:      { type: Array },
+    itemText:   { type: String },
+    itemValue:  { type: String},
+    label:      { type: String },
+    multiple:   { type: Boolean, default: false },
+    chips:      { type: Boolean, default: false },
+    clearable:  { type: Boolean, default: false },
+    required:   { type: Boolean, default: false }
   },
   computed: {
     selectValue: {
@@ -47,6 +53,12 @@ export default {
   methods: {
     change () {
       this.$emit('change')
+    },
+    focus () {
+      this.$emit('focus')
+    },
+    clear () {
+      this.$emit('clear')
     }
   }
 }

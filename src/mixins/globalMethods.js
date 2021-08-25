@@ -52,6 +52,10 @@ export default {
       .then(response => response.data)
     },
     SetCategoryOptionsForSelect (url, targetOptions, IDs) {
+      if (IDs.length === 0) {
+        this[targetOptions] = []
+        return
+      }
       this.GetCategoryOptions(url, IDs)
       .then(data => {
         if (data.ErrorMessages != null) {
@@ -63,32 +67,6 @@ export default {
         }
         this[targetOptions] = data
       })
-    },
-    Search (searchConditions, url, page) {
-      searchConditions.page = page
-      searchConditions = this.RemoveEmptyValue(searchConditions)
-      this.$router.push({ query: searchConditions })
-      const queryString = Object.keys(searchConditions).map(key => key + '=' + searchConditions[key]).join('&')
-      if (queryString) {
-        url += '?' + queryString
-      }
-      this.$adminHttp.get(url)
-        .then(response => {
-          if (response.data.ErrorMessages != null) {
-            this.setFalshMessage({
-              type: 'warning',
-              message: 'Failed to get data ...'
-            })
-          } else {
-            this.tableData = response.data.Items
-            this.itemsTotalCount = response.data.ItemsTotalCount
-            this.currentPage = 1
-          }
-          this.loading = false
-        })
-        .catch(() => {
-          this.loading = false
-        })
     },
     SetQueryParamsFromSearchConditions (searchConditions) {
       const query = this.RemoveEmptyValue(searchConditions)
@@ -106,8 +84,8 @@ export default {
       let queryParams = Object.assign({}, params)
       const selectedIDsKeys = [
         'selectedQuizLevelIDs',
-        'selectedQuizSectionsIDs',
-        'selectedQuizTitlesIDs',
+        'selectedQuizSectionIDs',
+        'selectedQuizTitleIDs',
       ]
       selectedIDsKeys.forEach(key => {
         if (Array.isArray(queryParams[key])) {
@@ -120,12 +98,18 @@ export default {
       paginationKeys.forEach(key => {
         queryParams[key] = Number(queryParams[key])
       })
-      console.log("pageSize is")
       Object.assign(this.searchConditions, queryParams)
     },
-    ClearSearchConditions () {
+    setInitialOptionsForSearchSelect(url, target, ids) {
+        if (this[target].length === 0 && ids.length > 0) {
+          this.SetCategoryOptionsForSelect(url, target, ids)
+        }
+    },
+    ClearSearchConditions() {
       if (window.confirm("Are you sure you wnat to clear 'All' search conditions")) {
         this.searchConditions = Object.assign({}, this.defaultSearchConditions)
+        this.quizSectionOptions = []
+        this.quizTitleOptions = []
       }
     }
   }
