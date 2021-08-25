@@ -15,31 +15,17 @@
               v-model="showSearchCondition"
               :label="showSearchCondition ? 'show': 'hide'"
               class="my-0 py-0 d-inline-flex"
-            >
-            </v-switch>
+            />
           </p>
         </div>
       </v-card-title>
-      <v-card
+      <MySearch
         v-if="showSearchCondition"
-        class="mb-3 px-5 pt-5"
+        v-model="searchConditions"
+        :defaultConditions="defaultSearchConditions"
+        url="quiz_titles"
       >
-        <p class="mb-2">
-          Ascending: 
-          <v-switch
-            v-model="searchConditions.ascending"
-            :label="searchConditions.ascending ? 'On': 'Off'"
-            class="ml-3 my-0 py-0 d-inline-flex"
-            inset
-            dense
-          >
-          </v-switch>
-        </p>
-        <MyInput
-          v-model="searchConditions.keywords"
-          label="Keyword"
-        />
-        <div style="max-width: 300px;">
+        <template v-slot:selectCategory>
           <MySelect
             v-model="searchConditions.selectedQuizLevelIDs"
             label="Quiz Level"
@@ -47,88 +33,31 @@
             itemText="Name"
             itemValue="ID"
             multiple
+            chips
+            clearable
             @change="SetCategoryOptionsForSelect(
               'admin/quiz_sections/get_by_quiz_level_ids',
-              'quizSectionsForSearch',
+              'quizSectionOptionsForSearch',
               searchConditions.selectedQuizLevelIDs
             )"
           />
           <MySelect
             v-model="searchConditions.selectedQuizSectionIDs"
             label="Quiz Section"
-            :items="quizSectionsForSearch"
+            :items="quizSectionOptionsForSearch"
             itemText="Name"
             itemValue="ID"
             multiple
-          />
-        </div>
-        <v-row class="mt-1 mb-3">
-          <v-col cols="12" sm="6">
-            <p class="mb-md-2">Creation Date</p>
-            <v-row>
-              <v-col cols="12" sm="6" class="pt-md-0 py-0 pxsm-1">
-                <MyDatepickerInput
-                  v-model="searchConditions.fromCreationDate"
-                  label="From"
-                  :max="searchConditions.toCreationDate"
-                />
-              </v-col>
-              <v-col cols="12" sm="6" class="pt-md-0 py-0 px-sm-1">
-                <MyDatepickerInput
-                  v-model="searchConditions.toCreationDate"
-                  label="To"
-                  :min="searchConditions.fromCreationDate"
-                />
-              </v-col>
-            </v-row>
-          </v-col>
-          <v-col cols="12" sm="6">
-            <p class="mb-md-2">Update Date</p>
-            <v-row>
-              <v-col cols="12" sm="6" class="pt-md-0 py-0 px-sm-1">
-                <MyDatepickerInput
-                  v-model="searchConditions.fromUpdateDate"
-                  label="From"
-                  :max="searchConditions.toUpdateDate"
-                />
-              </v-col>
-              <v-col cols="12" sm="6" class="pt-md-0 py-0 px-sm-1">
-                <MyDatepickerInput
-                  v-model="searchConditions.toUpdateDate"
-                  label="To"
-                  :min="searchConditions.fromUpdateDate"
-                />
-              </v-col>
-            </v-row>
-          </v-col>
-        </v-row>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <div class="d-inline" style="width: 100px;">
-            <MySelect
-              v-model="searchConditions.pageSize"
-              :items="[10, 20, 30, 50, 70, 100]"
-              label="Rows-per-page"
-              required
+            chips
+            clearable
+            @focus="setInitialOptionsForSearchSelect(
+              'admin/quiz_sections/get_by_quiz_level_ids',
+              'quizSectionOptionsForSearch',
+              searchConditions.selectedQuizLevelIDs
+            )"
             />
-          </div>
-          <v-btn
-            @click="ClearSearchConditions(defaultSearchConditions)"
-            plain
-            class="mx-3"
-          >Clear</v-btn>
-          <v-btn
-            color="primary"
-            small
-            @click="Search(searchConditions, '/admin/quiz_titles/search', 1)"
-          >
-            <v-icon>
-              mdi-magnify
-            </v-icon>
-            Search
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+        </template>
+      </MySearch>
       <v-data-table
         :headers="headers"
         :items="tableData"
@@ -181,14 +110,14 @@
                         itemValue="ID"
                         @change="SetCategoryOptionsForSelect(
                           'admin/quiz_sections/get_by_quiz_level_ids',
-                          'quizSections',
+                          'quizSectionOptionsForForm',
                           editedItem.QuizLevelID
                         )"
                       />
                       <MySelect
                         v-model="editedItem.QuizSectionID"
                         label="Quiz Section"
-                        :items="quizSections"
+                        :items="quizSectionOptionsForForm"
                         itemText="Name"
                         itemValue="ID"
                         required
@@ -284,16 +213,16 @@
 <script>
 import { mapActions } from 'vuex'
 import mixin from '../../../mixins/globalMethods.js'
+import MySearch from '../../../components/parts/search/MySearch'
 import MyInput from '../../../components/parts/form/MyInput'
-import MyDatepickerInput from '../../../components/parts/form/MyDatepickerInput'
 import MySelect from '../../../components/parts/form/MySelect'
 import ErrorMessages from '../../../components/parts/ErrorMessages'
 import Pagination from '../../../components/parts/pagination/Pagination'
 export default {
   name: 'IndexQuizTitles',
   components: {
+    MySearch,
     MyInput,
-    MyDatepickerInput,
     MySelect,
     ErrorMessages,
     Pagination
@@ -362,15 +291,15 @@ export default {
       Rate: 1
     },
     quizLevels: [],
-    quizSections: [],
+    quizSectionOptionsForForm: [],
     nameRules: {
       max: 40,
       required: true
     },
     rateArray: [...Array(41)].map((_, i) => Math.round(((i * 0.1) + 1) * 10) / 10),
     errorMessages: [],
-    quizSectionsForSearch: [],
     showSearchCondition: true,
+    quizSectionOptionsForSearch: [],
     defaultSearchConditions: {
       page: 1,
       selectedQuizLevelIDs: [],
@@ -402,9 +331,6 @@ export default {
     },
     deleteBtn () {
       return this.selectedItems.length
-    },
-    selectedIds () {
-      return [ this.searchConditions.selectedQuizLevelIDs, this.showSearchConditions.selectedQuizSectionIDs ]
     }
   },
   watch: {
@@ -413,6 +339,11 @@ export default {
     },
     dialog (val) {
       val || this.close()
+    },
+    'searchConditions.selectedQuizLevelIDs': function (val) {
+      if (val.length === 0) {
+        this.searchConditions.selectedQuizSectionIDs = []
+      }
     }
   },
   mounted () {
@@ -437,7 +368,6 @@ export default {
             })
           } else {
             this.quizLevels = response.data.QuizLevels
-            this.quizSectionsForSearch = response.data.QuizSectionForSearchSelect
             this.tableData = response.data.QuizTitles
             this.itemsTotalCount = response.data.ItemsTotalCount
           }
@@ -447,6 +377,7 @@ export default {
           this.loading = false
         })
       } else {
+        this.searchConditions = Object.assign({}, this.defaultSearchConditions)
         this.SetQueryParamsFromSearchConditions(this.defaultSearchConditions)
       }
     },
@@ -457,7 +388,7 @@ export default {
       this.editedItem.QuizSectionID = item.QuizSectionID
       this.SetCategoryOptionsForSelect(
         'admin/quiz_sections/get_by_quiz_level_ids',
-        'quizSections',
+        'quizSectionOptionsForForm',
         item.QuizLevelID
       )
       this.dialog = true
@@ -478,16 +409,14 @@ export default {
     },
     create () {
       if (this.validation()) {
-        this.$adminHttp.post('/admin/quiz_titles', {
-          QuizSectionID: this.editedItem.QuizSectionID,
-          Name: this.editedItem.Name,
-          Rate: this.editedItem.Rate
-        })
+        this.$adminHttp.post('/admin/quiz_titles', this.editedItem)
         .then(response => {
           if (response.data.ErrorMessages != null) {
             this.errorMessages = response.data.ErrorMessages
           } else {
-            this.tableData.push(response.data)
+            this.searchConditions = Object.assign({}, this.defaultSearchConditions)
+            this.$router.push({ query: ""})
+            // this.tableData.push(response.data)
             this.close()
             this.setFlashMessage({
               type: 'success', message: 'Created successfully'
@@ -502,11 +431,7 @@ export default {
     },
     update () {
       if (this.validation()) {
-        this.$adminHttp.put(`/admin/quiz_titles/${this.editedItem.ID}`, {
-          QuizSectionID: this.editedItem.QuizSectionID,
-          Name: this.editedItem.Name,
-          Rate: this.editedItem.Rate
-      })
+        this.$adminHttp.put(`/admin/quiz_titles/${this.editedItem.ID}`, this.editedItem)
         .then(response => {
           if (response.data.ErrorMessages != null) {
             this.errorMessages = response.data.ErrorMessages
