@@ -105,7 +105,6 @@ export default {
   props: {
     value:              { type: Object, required: true},
     defaultConditions:  { type: Object, required: true},
-    quizLevels:         { type: Array, default: () => [] },
     url:                { type: String, required: true }
   },
   computed: {

@@ -23,7 +23,6 @@
         v-if="showSearchCondition"
         v-model="searchConditions"
         :defaultConditions="defaultSearchConditions"
-        :quizLevels="quizLevels"
         url="quiz_titles"
       >
         <template v-slot:selectCategory>
