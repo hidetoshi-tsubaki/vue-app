@@ -11,7 +11,6 @@
     :clearable="clearable"
     @change="change"
     @focus="focus"
-    @click:clear="clear"
   >
   </v-select>
 </template>
@@ -56,9 +55,6 @@ export default {
     },
     focus () {
       this.$emit('focus')
-    },
-    clear () {
-      this.$emit('clear')
     }
   }
 }
