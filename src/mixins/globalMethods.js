@@ -104,13 +104,6 @@ export default {
         if (this[target].length === 0 && ids.length > 0) {
           this.SetCategoryOptionsForSelect(url, target, ids)
         }
-    },
-    ClearSearchConditions() {
-      if (window.confirm("Are you sure you wnat to clear 'All' search conditions")) {
-        this.searchConditions = Object.assign({}, this.defaultSearchConditions)
-        this.quizSectionOptions = []
-        this.quizTitleOptions = []
-      }
     }
   }
 }
