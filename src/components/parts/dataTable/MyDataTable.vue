@@ -153,7 +153,7 @@
         </template>
       </v-data-table>
       <Pagination
-        :page="page"
+        v-model="page"
         :pageSize="pageSize"
         :itemsTotalCount="itemsTotalCount"
       />

@@ -1,7 +1,7 @@
 <template>
   <div class="text-center">
     <v-pagination
-      v-model="page"
+      v-model="value"
       :length="culculatePageCount"
       @input="getDataPerPage"
       class="my-4"
@@ -13,7 +13,7 @@
 export default {
   name: "Pagination",
   props: {
-    page: {
+    value: {
       type: Number,
       required: true
     },
