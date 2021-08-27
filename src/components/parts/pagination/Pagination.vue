@@ -13,8 +13,12 @@
 export default {
   name: "Pagination",
   props: {
-    value: {
-      type: Object,
+    page: {
+      type: Number,
+      required: true
+    },
+    pageSize: {
+      type: Number,
       required: true
     },
     itemsTotalCount: {
@@ -24,21 +28,16 @@ export default {
   },
   computed: {
     culculatePageCount () {
-      return Math.ceil(this.itemsTotalCount / Number(this.value.pageSize))
-    },
-    page: {
-      get () {
-        return Number(this.value.page)
-      },
-      set (value) {
-        this.$emit("get_data_per_page", value)
-      }
+      return Math.ceil(this.itemsTotalCount / Number(this.pageSize))
     }
   },
   methods: {
     getDataPerPage (page) {
-      this.value.page = page
-      this.SetQueryParamsFromSearchConditions(this.value)
+      var query = Object.assign({}, this.$route.query)
+      if (query["page"] != page) {
+        query["page"] = page
+        this.$router.push({ query: query})
+      }
     }
   }
 }

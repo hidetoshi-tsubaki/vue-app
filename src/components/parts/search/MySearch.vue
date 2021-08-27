@@ -103,9 +103,18 @@ export default {
     MySelect
   },
   props: {
-    value:              { type: Object, required: true},
-    defaultConditions:  { type: Object, required: true},
-    url:                { type: String, required: true }
+    value: {
+      type: Object,
+      required: true
+    },
+    defaultSearchConditions: {
+      type: Object,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    },
   },
   computed: {
     searchConditions: {
@@ -116,16 +125,8 @@ export default {
         this.$emit("input", value)
       }
     },
-    defaultSearchConditions: {
-      get () {
-        return this.defaultConditions
-      },
-      set(value) {
-        this.$emit("input", value)
-      }
-    },
     searchUrl () {
-      return "admin/" + this.url + "/search"
+      return this.url + "/search"
     }
   },
   methods: {
@@ -133,6 +134,11 @@ export default {
       searchConditions.page = page
       searchConditions = this.RemoveEmptyValue(searchConditions)
       this.$router.push({ query: searchConditions })
+    },
+    ClearSearchConditions() {
+      if (window.confirm("Are you sure you wnat to clear 'All' search conditions")) {
+        this.searchConditions = Object.assign({}, this.defaultSearchConditions)
+      }
     }
   }
 }
