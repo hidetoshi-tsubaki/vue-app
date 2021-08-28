@@ -1,6 +1,6 @@
 <template>
   <v-alert
-    v-show="flashMessage"
+    v-if="flashMessage"
     dense
     border="left"
     :color="messageColor"
@@ -36,9 +36,9 @@ export default {
 
 <style scoped>
 .flash_message {
-  position: absolute;
+  position: fixed;
   z-index: 10;
-  top: -10px;
+  top: 30px;
   right: 10px;
 }
 </style>
