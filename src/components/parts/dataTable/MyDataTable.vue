@@ -391,6 +391,8 @@ export default {
           this.tableData = this.tableData.filter( function (item) {
             return selectedItemIds.includes(item.ID) === false
           })
+          this.itemsTotalCount -= this.selectedItems.length
+          this.selectedItems = []
           this.setFlashMessage({
             type: 'success', message: 'Remove quizzes successfully'
           })
