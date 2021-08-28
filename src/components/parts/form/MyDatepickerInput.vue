@@ -10,6 +10,7 @@
         prepend-inner-icon="mdi-calendar"
         clear-icon="mdi-close-circle"
         clearable
+        hide-details
         @click:clear="clearDate"
       >
       </v-text-field>

@@ -8,7 +8,7 @@
         ></v-divider>
         {{ title }}
         <v-spacer></v-spacer>
-        <p class="mb-0 text-subtitle-1">
+        <p class="mb-0 text-subtitle-1 grey--text text--darken-1">
           Search Condition
           <v-switch
             v-model="showSearchCondition"
@@ -39,16 +39,7 @@
         hide-default-footer
       >
         <template v-slot:top>
-          <v-toolbar flat>
-            <v-btn
-              small
-              color="error"
-              @click="deleteItems"
-              :disabled="!deleteBtn"
-            >
-              Delete {{ title }}
-            </v-btn>
-            <v-spacer></v-spacer>
+          <v-toolbar flat class="mb-4">
             <v-dialog
               v-model="dialog"
               max-width="600px"
@@ -59,7 +50,11 @@
                   color="primary"
                   v-bind="attrs"
                   v-on="on"
+                  class="mr-4"
                 >
+                  <v-icon left>
+                    mdi-plus
+                  </v-icon>
                   New
                 </v-btn>
               </template>
@@ -75,7 +70,6 @@
                     </v-form>
                   </v-container>
                 </v-card-text>
-
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn
@@ -104,6 +98,34 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+            <v-btn
+              small
+              color="error"
+              @click="deleteItems"
+              :disabled="!deleteBtn"
+              class="mr-4"
+            >
+              <v-icon left>
+                mdi-trash-can-outline
+              </v-icon>
+              Delete items
+            </v-btn>
+            <v-spacer></v-spacer>
+            <span class="d-none d-sm-flex mr-3 text-caption grey--text text--darken-3">
+              viewing {{ viewingCount }} of {{ itemsTotalCount }} results
+            </span>
+            <span class="d-none d-sm-flex text-caption font-weight-bold grey--text text--darken-2">
+              Page Size
+            </span>
+            <span class="d-none d-sm-flex ml-2" style="width: 65px;">
+              <MySelect
+                v-model="searchConditions.pageSize"
+                :items="[10, 20, 30, 50, 70, 100]"
+                required
+                dense
+                @change="changePageSize()"
+              />
+            </span>
             <v-dialog v-model="dialogDelete" max-width="600px">
               <v-card>
                 <v-card-title class="text-h5">Are you sure you want to delete those items?</v-card-title>
@@ -142,7 +164,7 @@
         </template>
         <template v-slot:footer v-if="showBottomDeleteBtn">
           <v-btn
-              small
+              x-small
               color="error"
               class="ml-4"
               @click="deleteItems"
@@ -153,9 +175,8 @@
         </template>
       </v-data-table>
       <Pagination
-        :page="page"
-        :pageSize="pageSize"
-        :itemsTotalCount="itemsTotalCount"
+        v-model="page"
+        :length="culculatePageCount"
       />
     </v-card>
   </div>
@@ -165,12 +186,14 @@
 import { mapActions } from 'vuex'
 import mixin from '../../../mixins/globalMethods.js'
 import MySearch from '../../../components/parts/search/MySearch'
+import MySelect from '../../../components/parts/form/MySelect'
 import ErrorMessages from '../../../components/parts/ErrorMessages'
 import Pagination from '../../../components/parts/pagination/Pagination'
 export default {
   name: 'MyDataTable',
   components: {
     MySearch,
+    MySelect,
     ErrorMessages,
     Pagination
   },
@@ -199,8 +222,8 @@ export default {
     editedIndex: -1,
     errorMessages: [],
     showSearchCondition: true,
-    page: 0,
-    pageSize: 0
+    page: 1,
+    pageSize: 1
   }),
   computed: {
     searchConditions: {
@@ -222,6 +245,14 @@ export default {
     },
     defaultPath () {
       return 'admin/' + this.url
+    },
+    viewingCount () {
+      const from = ((this.page - 1) * this.pageSize) + 1
+      const to = from + this.tableData.length - 1
+      return from + " - " + to 
+    },
+    culculatePageCount() {
+      return Math.ceil(this.itemsTotalCount / Number(this.pageSize))
     }
   },
   watch: {
@@ -285,6 +316,14 @@ export default {
     },
     closeDelete () {
       this.dialogDelete = false
+    },
+    changePageSize () {
+      var query = Object.assign({}, this.$route.query)
+      if (query["pageSize"] != this.searchConditions.pageSize) {
+        query["pageSize"] = this.searchConditions.pageSize
+        query["page"] = 1
+        this.$router.push({ query: query })
+      }
     },
     validation () {
       return this.$refs.form.validate() ? true : false

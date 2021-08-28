@@ -10,6 +10,7 @@
         class="ml-3 my-0 py-0 d-inline-flex"
         inset
         dense
+        hide-details
       >
       </v-switch>
     </p>
@@ -22,7 +23,7 @@
     </div>
     <v-row class="mt-1 mb-3">
       <v-col cols="12" sm="6">
-        <p class="mb-md-2">Creation Date</p>
+        <p class="mb-0">Creation Date</p>
         <v-row>
           <v-col cols="12" sm="6" class="pt-md-0 py-0 pxsm-1">
             <MyDatepickerInput
@@ -41,7 +42,7 @@
         </v-row>
       </v-col>
       <v-col cols="12" sm="6">
-        <p class="mb-md-2">Update Date</p>
+        <p class="mb-0">Update Date</p>
         <v-row>
           <v-col cols="12" sm="6" class="pt-md-0 py-0 px-sm-1">
             <MyDatepickerInput
@@ -62,14 +63,6 @@
     </v-row>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <div class="d-inline" style="width: 100px;">
-        <MySelect
-          v-model="searchConditions.pageSize"
-          :items="[10, 20, 30, 50, 70, 100]"
-          label="Rows-per-page"
-          required
-        />
-      </div>
       <v-btn
         @click="ClearSearchConditions(defaultSearchConditions)"
         plain
@@ -80,7 +73,7 @@
         small
         @click="Search(searchConditions, searchUrl, 1)"
       >
-        <v-icon>
+        <v-icon left>
           mdi-magnify
         </v-icon>
         Search
@@ -93,14 +86,12 @@
 import mixin from '../../../mixins/globalMethods.js'
 import MyInput from '../form/MyInput'
 import MyDatepickerInput from '../form/MyDatepickerInput'
-import MySelect from '../form/MySelect'
 export default {
   name: "MySearch",
   mixins: [mixin],
   components: {
     MyInput,
-    MyDatepickerInput,
-    MySelect
+    MyDatepickerInput
   },
   props: {
     value: {

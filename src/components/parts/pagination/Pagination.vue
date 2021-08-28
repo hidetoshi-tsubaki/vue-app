@@ -2,9 +2,8 @@
   <div class="text-center">
     <v-pagination
       v-model="page"
-      :length="culculatePageCount"
+      :length="length"
       @input="getDataPerPage"
-      class="my-4"
     />
   </div>
 </template>
@@ -13,22 +12,23 @@
 export default {
   name: "Pagination",
   props: {
-    page: {
+    value: {
       type: Number,
       required: true
     },
-    pageSize: {
+    length: {
       type: Number,
-      required: true
-    },
-    itemsTotalCount: {
-      type: Number,
-      required: true
+      default: 1
     }
   },
   computed: {
-    culculatePageCount () {
-      return Math.ceil(this.itemsTotalCount / Number(this.pageSize))
+    page: {
+      get () {
+        return this.value
+      },
+      set (value) {
+        this.$emit("input", value)
+      }
     }
   },
   methods: {
