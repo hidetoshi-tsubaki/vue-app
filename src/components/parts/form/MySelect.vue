@@ -9,6 +9,8 @@
     :multiple="multiple"
     :chips="chips"
     :clearable="clearable"
+    :dense="dense"
+    :hide-details="hideDetails"
     @change="change"
     @focus="focus"
   >
@@ -19,15 +21,17 @@
 export default {
   name: "MySelect",
   props: {
-    value:      { type: [ Number, Array ], required: true },
-    items:      { type: Array },
-    itemText:   { type: String },
-    itemValue:  { type: String},
-    label:      { type: String },
-    multiple:   { type: Boolean, default: false },
-    chips:      { type: Boolean, default: false },
-    clearable:  { type: Boolean, default: false },
-    required:   { type: Boolean, default: false }
+    value:        { type: [ Number, Array ], required: true },
+    items:        { type: Array },
+    itemText:     { type: String },
+    itemValue:    { type: String},
+    label:        { type: String },
+    multiple:     { type: Boolean, default: false },
+    chips:        { type: Boolean, default: false },
+    clearable:    { type: Boolean, default: false },
+    required:     { type: Boolean, default: false },
+    dense:        { type: Boolean, default: false },
+    hideDetails: { type: [Boolean, String], default: true }
   },
   computed: {
     selectValue: {

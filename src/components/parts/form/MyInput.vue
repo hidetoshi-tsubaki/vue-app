@@ -6,6 +6,7 @@
     :counter="max"
     :prepend-icon="prependIcon"
     :type="type"
+    :hide-details="hideDetails"
   />
 </template>
 
@@ -19,7 +20,8 @@ export default {
     prependIcon: { type: String},
     required: { type: Boolean, default: false },
     max: { type: Number },
-    allowSpace: { type: Boolean, default: false }
+    allowSpace: { type: Boolean, default: false },
+    hideDetails: { type: [Boolean, String], default: true }
   },
   computed: {
     inputValue: {
