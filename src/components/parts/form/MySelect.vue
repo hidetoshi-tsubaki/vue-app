@@ -31,7 +31,7 @@ export default {
     clearable:    { type: Boolean, default: false },
     required:     { type: Boolean, default: false },
     dense:        { type: Boolean, default: false },
-    hideDetails: { type: [Boolean, String], default: true }
+    hideDetails: { type: [Boolean, String], default: false }
   },
   computed: {
     selectValue: {
