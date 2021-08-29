@@ -1,11 +1,11 @@
 <template>
   <v-app style="min-width: 320px">
+    <FlashMessage />
     <Header />
     <v-main
       style="background-color: #F9FBFE;"
       class="pt-sm-5 main_wrapper"
     >
-      <FlashMessage />
       <v-container fluid>
         <router-view/>
       </v-container>
@@ -36,6 +36,9 @@ export default {
 <style>
 @import "./css/reset.css";
 .main_wrapper {
+  position: relative;
+}
+.v-application {
   position: relative;
 }
 </style>
