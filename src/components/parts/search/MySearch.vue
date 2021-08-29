@@ -21,9 +21,9 @@
     <div style="max-width: 600px;">
       <slot name="selectCategory"></slot>
     </div>
-    <v-row class="mt-1 mb-3">
+    <v-row class="mt-0 mb-3">
       <v-col cols="12" sm="6">
-        <p class="mb-0">Creation Date</p>
+        <p class="mb-3">Creation Date</p>
         <v-row>
           <v-col cols="12" sm="6" class="pt-md-0 py-0 pxsm-1">
             <MyDatepickerInput
@@ -42,7 +42,7 @@
         </v-row>
       </v-col>
       <v-col cols="12" sm="6">
-        <p class="mb-0">Update Date</p>
+        <p class="mb-3">Update Date</p>
         <v-row>
           <v-col cols="12" sm="6" class="pt-md-0 py-0 px-sm-1">
             <MyDatepickerInput

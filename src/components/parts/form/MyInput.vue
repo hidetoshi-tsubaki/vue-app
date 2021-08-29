@@ -21,7 +21,7 @@ export default {
     required: { type: Boolean, default: false },
     max: { type: Number },
     allowSpace: { type: Boolean, default: false },
-    hideDetails: { type: [Boolean, String], default: true }
+    hideDetails: { type: [Boolean, String], default: false }
   },
   computed: {
     inputValue: {

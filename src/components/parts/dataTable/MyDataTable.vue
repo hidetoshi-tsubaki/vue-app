@@ -123,6 +123,7 @@
                 :items="[10, 20, 30, 50, 70, 100]"
                 required
                 dense
+                hide-details
                 @change="changePageSize()"
               />
             </span>
