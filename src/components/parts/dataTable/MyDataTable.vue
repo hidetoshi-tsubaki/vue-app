@@ -208,7 +208,7 @@ export default {
     linkName:                 { type: String, required: true },
     editedItem:               { type: Object, required: true },
     defaultItem:              { type: Object, required: true },
-    initQuizLevels:           { type: Function, required: true },
+    initQuizLevels:           { type: Function, default: () => 1 },
     updateEditedItem:         { type: Function, required: true }
   },
   data: () => ({
@@ -250,7 +250,13 @@ export default {
     viewingCount () {
       const from = ((this.page - 1) * this.pageSize) + 1
       const to = from + this.tableData.length - 1
-      return from + " - " + to 
+      if (from === to ) {
+        return from
+      } else if (to === 0) {
+        return 0
+      } else {
+        return from + " - " + to 
+      }
     },
     culculatePageCount() {
       return Math.ceil(this.itemsTotalCount / Number(this.pageSize))
