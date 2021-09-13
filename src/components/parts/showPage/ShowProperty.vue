@@ -101,7 +101,11 @@ export default {
     },
     deleteItem () {
       if (window.confirm("Are you sure you want to delete this item ?")) {
-        this.$adminHttp.delete(this.defaultUrl)
+        this.$adminHttp.request({
+          method: 'delete',
+          url: this.defaultUrl,
+          data: { DeleteItemIds: [ this.item.ID ] }
+        })
         .then(response => {
           if (response.data != null) {
             console.log(response.data)
