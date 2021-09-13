@@ -1,402 +1,235 @@
 <template>
-  <v-card>
-    <v-card-title>
-      {{ this.quizSection.Name }}
-    </v-card-title>
-    <v-divider class="mx-5"></v-divider>
-    <v-card-title>
-      Quiz Titles in {{ this.quizSection.Name }}
-      <v-spacer></v-spacer>
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Search"
-        hide-details
-      ></v-text-field>
-    </v-card-title>
-    <v-data-table
-      :headers="headers"
-      :items="quizTitles"
-      :sort-by="headers"
-      :search='search'
-      :loading="loading"
-      loading-text="Loading... Please wait"
+  <div>
+    <v-card class="pa-3 mb-5">
+      <ShowProperty
+        v-model="quizSection"
+        :formKeys="formKeys"
+        url="quiz_sections"
+        v-if="quizSection"
+      >
+        <template v-slot:form>
+          <my-select
+            v-model="quizSection.QuizLevelID"
+            label="Quiz Level"
+            :items="quizLevels"
+            itemText="Name"
+            itemValue="ID"
+            required
+          />
+          <MyInput
+            v-model="quizSection.Name"
+            label="Name"
+            v-bind="nameRules"
+          />
+        </template>
+      </showProperty>
+    </v-card>
+    <v-btn
+      v-if="!showTable"
+      plain
+      color="primary"
+      @click="showTable = true"
     >
-      <template v-slot:top>
-        <v-spacer></v-spacer>
-        <v-toolbar flat>
-          <v-dialog
-            v-model="dialog"
-            max-width="600px"
-          >
-            <template v-slot:activator="{ on, attrs }">
-              <v-spacer></v-spacer>
-              <v-btn
-                small
-                color="primary"
-                class="mb-2"
-                v-bind="attrs"
-                v-on="on"
-              >
-                New
-              </v-btn>
-            </template>
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">{{ formTitle }} Quiz Title</span>
-              </v-card-title>
-
-              <v-card-text>
-                <v-container>
-                    <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
-                      <MySelect
-                        v-if="editedIndex != -1"
-                        v-model="editedItem.QuizLevelID"
-                        label="Quiz Level"
-                        :items="quizLevels"
-                        itemText="Name"
-                        itemValue="ID"
-                        @change="getQuizSections"
-                      />
-                    <v-form ref="form">
-                      <MySelect
-                        v-if="editedIndex != -1"
-                        v-model="editedItem.QuizSectionID"
-                        label="Quiz Section"
-                        :items="quizSectionsChoices"
-                        itemText="Name"
-                        itemValue="ID"
-                        v-bind="quizSectionRules"
-                      />
-                      <MyInput
-                        v-model="editedItem.Name"
-                        label="Name"
-                        v-bind="nameRules"
-                      />
-                      <MySelect
-                        v-model="editedItem.Rate"
-                        label="Rate"
-                        :items="rateArray"
-                      />
-                    </v-form>
-                </v-container>
-              </v-card-text>
-
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn
-                  color="blue darken-1"
-                  text
-                  @click="close"
-                >
-                  Cancel
-                </v-btn>
-                <v-btn
-                  v-if="editedIndex != -1"
-                  color="blue darken-1"
-                  text
-                  @click="update"
-                >
-                  Update
-                </v-btn>
-                <v-btn
-                  v-if="editedIndex === -1"
-                  color="blue darken-1"
-                  text
-                  @click="create"
-                >
-                  create
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-          <v-dialog v-model="dialogDelete" max-width="600px">
-            <v-card>
-              <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="deleteItemConfirm(editedItem)">OK</v-btn>
-                <v-spacer></v-spacer>
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.CreatedAt, 'yyyy/M/d H:m') }}
-      </template>
-      <template v-slot:item.UpdatedAt="{ item }" v-slot:activator="{changeFormat}">
-        {{ changeFormat(item.UpdatedAt, 'yyyy/M/d H:m') }}
-      </template>
-      <template v-slot:item.actions="{ item }">
-        <router-link :to="{ name: 'ShowQuizTitle', params: { id: item.ID }}">
-          <v-icon
-            small
-            class="mr-2"
-          >
-            mdi-open-in-new
-          </v-icon>
-        </router-link>
-        <v-icon
-          small
-          class="mr-2"
-          color="primary"
-          @click="editItem(item)"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          small
-          color="red"
-          @click="deleteItem(item)"
-        >
-          mdi-delete
-        </v-icon>
-      </template>
-    </v-data-table>
-  </v-card>
+      show items belongs to quiz Section
+    </v-btn>
+    <v-card v-if="showTable">
+      <MyDataTable
+        v-if="showTable"
+        :title="tableTitle"
+        v-model="searchConditions"
+        :defaultSearchConditions="defaultSearchConditions"
+        :headers="headers"
+        url="quiz_titles"
+        linkName="showQuizTitle"
+        :editedItem.sync="editedItem"
+        :defaultItem="defaultItem"
+        :initQuizLevels="initQuizLevels"
+        :updateEditedItem="updateEditedItem"
+      >
+        <template v-slot:form>
+          <MyInput
+            v-model="editedItem.Name"
+            label="Name"
+            v-bind="nameRules"
+          />
+          <MySelect
+            v-model="editedItem.Rate"
+            label="Rate"
+            :items="rateArray"
+            required
+          />
+        </template>
+      </MyDataTable>
+    </v-card>
+  </div>
 </template>
+
 <script>
 import { mapActions } from 'vuex'
-import MyInput from '../../../components/parts/form/MyInput'
-import MySelect from '../../../components/parts/form/MySelect'
-import ErrorMessages from '../../../components/parts/ErrorMessages'
 import mixin from '../../../mixins/globalMethods.js'
+import MyDataTable from '../../../components/parts/dataTable/MyDataTable'
+import MySelect from '../../../components/parts/form/MySelect'
+import MyInput from '../../../components/parts/form/MyInput'
+import ShowProperty from '../../../components/parts/showPage/ShowProperty'
 export default {
   name: 'ShowQuizSection',
   components: {
-    MyInput,
+    MyDataTable,
     MySelect,
-    ErrorMessages
+    MyInput,
+    ShowProperty
   },
   mixins: [mixin],
   data: () => ({
-    loading: false,
+    showTable: false,
+    quizSection: null,
+    quizLevels: [],
+    formKeys: [ "QuizLevelID", "Name" ],
+    rateArray: [...Array(41)].map((_, i) => Math.round(((i * 0.1) + 1) * 10) / 10),
+    quizSectionOptionsForForm: [],
     headers: [
       {
         text: "ID",
         align: "start",
-        value: "ID"
+        value: "ID",
+        sortable: false
       },
       {
         text: "Name",
-        value: "Name"
-      },
-      {
-        text: "Rate",
-        value: "Rate"
+        value: "Name",
+        sortable: false
       },
       {
         text: "CreatedAt",
-        value: "CreatedAt"
+        value: "CreatedAt",
+        sortable: false
       },
       { text: "UpdatedAt",
         value: "UpdatedAt",
+        sortable: false
       },
       {
-          text: 'Actions',
-          value: 'actions',
-          sortable: false
+        text: 'Actions',
+        value: 'actions',
+        sortable: false
       }
     ],
-    search: '',
-    dialog: false,
-    dialogDelete: false,
-    editedIndex: -1,
     editedItem: {
-      QuizLevelID: '',
-      QuizSectionID: '',
+      QuizSectionID: 0,
       Name: '',
-      Rate: 1
     },
     defaultItem: {
-      QuizSectionID: '',
+      QuizSectionID: 0,
       Name: '',
-      Rate: 1
-    },
-    quizLevels: [],
-    quizSection: '',
-    quizSections: [],
-    initQuizSectionsChoices: '',
-    quizSectionsChoices: [],
-    quizTitles: [],
-    quizSectionRules: {
-      required: true
     },
     nameRules: {
       max: 40,
       required: true
     },
-    errorMessages: [],
-    rateArray: [...Array(41)].map((_, i) => Math.round(((i * 0.1) + 1) * 10) / 10)
+    showSearchCondition: true,
+    defaultSearchConditions: {
+      page: 1,
+      keywords: '',
+      fromCreationDate: '',
+      toCreationDate: '',
+      fromUpdateDate: '',
+      toUpdateDate: '',
+      pageSize: 50,
+      ascending: false,
+      selectedQuizSectionIDs: []
+    },
+    searchConditions: {
+      page: 1,
+      keywords: '',
+      fromCreationDate: '',
+      toCreationDate: '',
+      fromUpdateDate: '',
+      toUpdateDate: '',
+      pageSize: 50,
+      ascending: false,
+      selectedQuizSectionIDs: []
+    }
   }),
   computed: {
-    formTitle () {
-      return this.editedIndex === -1 ? 'New' : 'Edit'
+    tableTitle () {
+      return "Quiz Titles In ' " + this.quizSection.Name +" '"
     }
   },
-  watch: {
-    dialog (val) {
-      val || this.close()
-    },
-    dialogDelete (val) {
-      val || this.closeDelete()
-    },
-  },
-  mounted () {
-    this.fetchData()
+  created () {
+    this.$adminHttp.get(`admin/quiz_sections/${this.$route.params.id}`)
+    .then(response => {
+      if (response.data.ErrorMessages != null) {
+        console.log(response.data.ErrorMessages)
+        this.setFlashMessage({
+          type: 'warning',
+          message: 'Failed to fetch data ...'
+        })
+      } else {
+        this.quizLevels = response.data.QuizLevels
+        this.quizSection = response.data.QuizSection
+        this.setID()
+      }
+    })
   },
   methods: {
     ...mapActions({ setFlashMessage: 'flashMessage/set' }),
-    fetchData: function () {
-      this.loading = true
-      this.$adminHttp.get(`/admin/quiz_sections/${this.$route.params.id}`)
-      .then(response => {
-        if (response.data.ErrorMessages != null) {
-            console.log(response.data.ErrorMessages)
-            this.setFlashMessage({
-              type: 'warning',
-              message: 'Failed to fetch data ...'
-            })
-          } else {
-            this.quizLevels = response.data.QuizLevels
-            this.quizSection = response.data.QuizSection
-            this.quizSections = response.data.QuizSections
-            this.initQuizSectionsChoices = this.quizSections
-            this.quizTitles = response.data.QuizSection.QuizTitles
-          }
-          this.loading = false
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+    setID () {
+      var quizSectionID = Number(this.$route.params.id)
+      this.searchConditions.selectedQuizSectionIDs = quizSectionID
+      this.defaultSearchConditions.selectedQuizSectionIDs = quizSectionID
+      this.editedItem.QuizSectionID = quizSectionID
+      this.defaultItem.QuizSectionID = quizSectionID
     },
-    editItem (item) {
-      this.editedIndex = this.quizTitles.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.editedItem.QuizLevelID = this.quizSection.QuizLevelID
-      this.editedItem.QuizSectionID = this.quizSection.ID
-      this.quizSectionsChoices = this.initQuizSectionsChoices
-      this.dialog = true
+    initQuizLevels (value) {
+      this.quizLevels = value
     },
-    deleteItem (item) {
-      this.editedIndex = this.quizTitles.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
-    },
-    deleteItemConfirm (item) {
-      this.$adminHttp.delete(`/admin/quiz_titles/${item.ID}`)
-        .then(response => {
-          if (response.data != null) {
-            console.log(response.data)
-            this.setFlashMessage({
-              type: 'warning', message: "Failed to delete ..."
-            })
-          } else {
-            this.quizTitles.splice(this.editedIndex, 1)
-            this.closeDelete()
-            this.setFlashMessage({
-              type: 'success', message: "Delete successfully"
-            })
-          }
-        })
-        .catch(error => {
-          console.log(error)
-        })
-    },
-    close () {
-      this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-        this.errorMessages = []
-      })
-    },
-    closeDelete () {
-      this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
-    },
-    getQuizSections () {
-      this.$adminHttp.get(`/admin/quiz_sections/get_quiz_sections_by_quiz_level_id/${this.editedItem.QuizLevelID}`)
-        .then(response => {
-          if (response.data.ErrorMessages != null) {
-            this.errorMessages = response.data.ErrorMessages
-          } else {
-            this.quizSectionsChoices = response.data
-            if (this.quizSectionsChoices.length) {
-              this.editedItem.QuizSectionID = response.data[0].ID
-            } else {
-              this.editedItem.QuizSectionID = 0
-            }
-          }
-        })
-        .catch(error => {
-          console.log(error)
-          this.errorMessages = ['Something went wrong. Please try again']
-        })
+    updateEditedItem (value) {
+      this.editedItem = Object.assign({}, value)
+      if (this.editedItem.Name != "") {
+        this.SetCategoryOptionsForSelect(
+          'admin/quiz_sections/get_by_quiz_level_ids',
+          'quizSectionOptionsForForm',
+          value.QuizLevelID
+        )
+      }      
     },
     validation () {
       return this.$refs.form.validate() ? true : false
     },
-    create () {
+    update () {
       if (this.validation()) {
-        this.$adminHttp.post('/admin/quiz_titles', {
-          QuizSectionID: this.quizSection.ID,
-          Name: this.editedItem.Name,
-          Rate: this.editedItem.Rate
+        this.$adminHttp.put(`/admin/quiz_sections/${this.$route.params.id}`, {
+          QuizLevelID: this.quizSection.QuizLevelID,
+          Name: this.quizSection.Name
         })
         .then(response => {
           if (response.data.ErrorMessages != null) {
             this.errorMessages = response.data.ErrorMessages
           } else {
-            this.quizTitles.push(response.data)
-            this.close()
+            this.quizSection = response.data
             this.setFlashMessage({
-              type: 'success', message: 'Created successfully'
+              type: 'success', message: 'Changes have been saved'
             })
           }
         })
-        .catch(error => {
-          console.log(error)
-          this.errorMessages = ['Something went wrong. Please try again']
-        })
       }
     },
-    update () {
-      if (this.validation()) {
-        this.$adminHttp.put(`/admin/quiz_titles/${this.editedItem.ID}`, {
-          QuizSectionID: this.editedItem.QuizSectionID,
-          Name: this.editedItem.Name,
-          Rate: this.editedItem.Rate
-      })
+    deleteQuizSection () {
+      if (window.confirm("Are you sure you want to delete quiz section ?")) {
+        this.$adminHttp.delete('/admin/quiz_sections')
         .then(response => {
-          if (response.data.ErrorMessages != null) {
-            this.errorMessages = response.data.ErrorMessages
+          if (response.data != null) {
+            console.log(response.data)
+            this.setFlashMessage({
+              type: 'warning', message: 'Failed to delete quiz sections'
+            })
           } else {
-            if (this.quizSection.ID === this.editedItem.QuizSectionID) {
-              Object.assign(this.quizTitles[this.editedIndex], this.editedItem)
-              this.setFlashMessage({
-                type: 'success', message: 'Changes have been saved'
-              })
-            } else {
-              this.quizTitles.splice(this.editedIndex, 1)
-              this.setFlashMessage({
-                type: 'success', message: 'it was moved to another Quiz Section'
-              })
-            }
-            this.close()
+            this.setFlashMessage({
+              type: 'success', message: 'delete quiz section successfully'
+            })
+            this.$router.push('/admin/quiz_sections')
           }
-        })
-        .catch(error => {
-          console.log(error)
-          alert(error)
-          this.setFlashMessage({
-            type: 'error', message: 'Something went wrong. Please try again'
-          })
+          this.closeDelete()
         })
       }
     }
