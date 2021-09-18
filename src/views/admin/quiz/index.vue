@@ -53,45 +53,47 @@
         clearable
         />
     </template>
-    <template v-slot:form>
-      <MySelect
-        v-model="editedItem.QuizLevelID"
-        label="Quiz Level"
-        :items="quizLevels"
-        itemText="Name"
-        itemValue="ID"
-        @change="SetCategoryOptionsForSelect(
-          'admin/quiz_sections/get_by_quiz_level_ids',
-          'quizSectionOptionsForForm',
-          editedItem.QuizLevelID
-        )"
-      />
-      <MySelect
-        v-model="editedItem.QuizSectionID"
-        label="Quiz Section"
-        :items="quizSectionOptionsForForm"
-        itemText="Name"
-        itemValue="ID"
-        required
-        @focus="SetCategoryOptionsForSelect(
-          'admin/quiz_sections/get_by_quiz_level_ids',
-          'quizSectionOptionsForForm',
-          editedItem.QuizLevelID
-        )"
-      />
-      <MySelect
-        v-model="editedItem.QuizTitleID"
-        label="Quiz Title"
-        :items="quizTitleOptionsForForm"
-        itemText="Name"
-        itemValue="ID"
-        required
-        @focus="SetCategoryOptionsForSelect(
-          'admin/quiz_titles/get_by_quiz_section_ids',
-          'quizTitleOptionsForForm',
-          editedItem.QuizSectionID
-        )"
-      />
+    <template v-slot:form="slotProps">
+      <div v-if="slotProps.editedIndex === -1">
+        <MySelect
+          v-model="editedItem.QuizLevelID"
+          label="Quiz Level"
+          :items="quizLevels"
+          itemText="Name"
+          itemValue="ID"
+          @change="SetCategoryOptionsForSelect(
+            'admin/quiz_sections/get_by_quiz_level_ids',
+            'quizSectionOptionsForForm',
+            editedItem.QuizLevelID
+          )"
+        />
+        <MySelect
+          v-model="editedItem.QuizSectionID"
+          label="Quiz Section"
+          :items="quizSectionOptionsForForm"
+          itemText="Name"
+          itemValue="ID"
+          required
+          @focus="SetCategoryOptionsForSelect(
+            'admin/quiz_sections/get_by_quiz_level_ids',
+            'quizSectionOptionsForForm',
+            editedItem.QuizLevelID
+          )"
+        />
+        <MySelect
+          v-model="editedItem.QuizTitleID"
+          label="Quiz Title"
+          :items="quizTitleOptionsForForm"
+          itemText="Name"
+          itemValue="ID"
+          required
+          @focus="SetCategoryOptionsForSelect(
+            'admin/quiz_titles/get_by_quiz_section_ids',
+            'quizTitleOptionsForForm',
+            editedItem.QuizSectionID
+          )"
+        />
+      </div>
       <MyTextarea
         v-model="editedItem.Question"
         label="Question"
