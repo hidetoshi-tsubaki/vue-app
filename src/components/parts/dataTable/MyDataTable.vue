@@ -22,9 +22,10 @@
         :defaultSearchConditions="defaultSearchConditions"
         :quizLevels="quizLevels"
         :url="defaultPath"
+        :searchAction="searchAction"
         v-if="showSearchCondition"
       >
-        <template v-slot:selectCategory>
+        <template v-slot:searchForm>
           <slot name="search"></slot>
         </template>
       </MySearch>
@@ -34,9 +35,11 @@
         :loading="loading"
         loading-text="Loading... Please wait"
         item-key="ID"
+        :items-per-page="searchConditions.pageSize"
         show-select
         v-model="selectedItems"
         hide-default-footer
+        class="mytable"
       >
         <template v-slot:top>
           <v-toolbar flat class="mb-4">
@@ -52,9 +55,6 @@
                   v-on="on"
                   class="mr-4"
                 >
-                  <v-icon left>
-                    mdi-plus
-                  </v-icon>
                   New
                 </v-btn>
               </template>
@@ -66,7 +66,7 @@
                   <v-container>
                     <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
                     <v-form ref="form">
-                      <slot name="form"></slot>
+                      <slot name="form" v-bind:editedIndex="editedIndex" ></slot>
                     </v-form>
                   </v-container>
                 </v-card-text>
@@ -165,13 +165,16 @@
         </template>
         <template v-slot:footer v-if="showBottomDeleteBtn">
           <v-btn
-              x-small
-              color="error"
-              class="ml-4"
-              @click="deleteItems"
-              :disabled="!deleteBtn"
-            >
-              Delete {{ title }}
+            small
+            color="error"
+            class="ml-4"
+            @click="deleteItems"
+            :disabled="!deleteBtn"
+          >
+            <v-icon left>
+              mdi-trash-can-outline
+            </v-icon>
+            Delete {{ title }}
           </v-btn>
         </template>
       </v-data-table>
@@ -209,7 +212,8 @@ export default {
     editedItem:               { type: Object, required: true },
     defaultItem:              { type: Object, required: true },
     initQuizLevels:           { type: Function, default: () => 1 },
-    updateEditedItem:         { type: Function, required: true }
+    updateEditedItem:         { type: Function, required: true },
+    searchAction:             { type: Function }
   },
   data: () => ({
     tableData: [],
@@ -320,6 +324,7 @@ export default {
         this.editedIndex = -1
         this.errorMessages = []
       })
+      this.$refs.form.reset()
     },
     closeDelete () {
       this.dialogDelete = false
@@ -386,7 +391,7 @@ export default {
       this.$adminHttp.request({
         method: 'delete',
         url: deleteUrl,
-        data: { DeleteItemIds: selectedItemIds }
+        data: { SelectedItemIds: selectedItemIds }
       })
       .then(response => {
         if (response.data != null) {
@@ -414,8 +419,18 @@ export default {
       })
     },
     pageTransition (item) {
-      this.$router.push(this.url + "/" + item.ID)
+      this.$router.push("/" + this.defaultPath + "/" + item.ID)
     }
   }
 }
 </script>
+
+<style>
+.mytable .text-start, .v-application--is-ltr .mytable .v-data-table__mobile-row__cell{
+  max-width: 180px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+</style>
