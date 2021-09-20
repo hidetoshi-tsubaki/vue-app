@@ -42,6 +42,20 @@
             required
           />
         </template>
+        <template v-slot:btn>
+          <v-spacer></v-spacer>
+          <v-btn
+            small
+            outlined
+            color="primary"
+            @click="dialog = !dialog"
+          >
+            Add Existing Quiz
+          </v-btn>
+          <v-dialog v-model="dialog">
+            <AddExistingQuizTable :quizLevels="quizLevels" :closeDialog="closeDialog" />
+          </v-dialog>
+        </template>
       </ShowProperty>
     </v-card>
     <v-btn
@@ -106,6 +120,7 @@ import MyTextarea from '../../../components/parts/form/MyTextarea'
 import MySelect from '../../../components/parts/form/MySelect'
 import MyInput from '../../../components/parts/form/MyInput'
 import ShowProperty from '../../../components/parts/showPage/ShowProperty'
+import AddExistingQuizTable from './AddExistingQuizTable'
 export default {
   name: 'ShowQuizTitle',
   components: {
@@ -113,11 +128,13 @@ export default {
     MySelect,
     MyInput,
     MyTextarea,
-    ShowProperty
+    ShowProperty,
+    AddExistingQuizTable
   },
   mixins: [mixin],
   data: () => ({
     showTable: false,
+    dialog: false,
     quizTitle: null,
     quizLevels: [],
     formKeys: [ "QuizSectionID", "Name", "Rate" ],
@@ -258,6 +275,9 @@ export default {
       this.editedItem.QuizTitleID = quizTitleID
       this.defaultItem.QuizTitleID = quizTitleID
     },
+    closeDialog () {
+      this.dialog = false
+    },
     updateEditedItem (value) {
       this.editedItem = Object.assign({}, value)
       // if (this.editedItem.Name != "") {
@@ -270,7 +290,7 @@ export default {
     },
     validation () {
       return this.$refs.form.validate() ? true : false
-    },
+    }
   }
 }
 </script>
