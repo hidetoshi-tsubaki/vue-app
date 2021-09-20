@@ -6,7 +6,7 @@
     :headers="headers"
     url="quiz_titles"
     linkName="showQuizTitle"
-    :editedItem.sync="editedItem"
+    :editedItem="editedItem"
     :defaultItem="defaultItem"
     :initQuizLevels="initQuizLevels"
     :updateEditedItem="updateEditedItem"
@@ -39,7 +39,7 @@
         @focus="setInitialOptionsForSearchSelect(
           'admin/quiz_sections/get_by_quiz_level_ids',
           'quizSectionOptionsForSearch',
-          searchConditions.selectedQuizLevelIDs
+          searchConditions.selectedQuizSectionIDs
         )"
         />
     </template>
@@ -63,11 +63,6 @@
         itemText="Name"
         itemValue="ID"
         required
-        @focus="SetCategoryOptionsForSelect(
-          'admin/quiz_sections/get_by_quiz_level_ids',
-          'quizSectionOptionsForForm',
-          editedItem.QuizLevelID
-        )"
       />
       <MyInput
         v-model="editedItem.Name"
@@ -153,6 +148,7 @@ export default {
     },
     quizLevels: [],
     quizSectionOptionsForForm: [],
+    quizTitleOptionsForForm: [],
     nameRules: {
       max: 40,
       required: true
@@ -164,6 +160,7 @@ export default {
       page: 1,
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
+      selectedQuizTitleIDs: [],
       keywords: '',
       fromCreationDate: '',
       toCreationDate: '',
@@ -177,6 +174,7 @@ export default {
       keywords: '',
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
+      selectedQuizTitleIDs: [],
       fromCreationDate: '',
       toCreationDate: '',
       fromUpdateDate: '',
