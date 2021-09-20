@@ -37,7 +37,7 @@ export default {
 <style scoped>
 .flash_message {
   position: fixed;
-  z-index: 10;
+  z-index: 100000;
   top: 30px;
   right: 10px;
 }
