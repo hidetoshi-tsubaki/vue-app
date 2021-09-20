@@ -1,14 +1,15 @@
 <template>
-  <div>
+  <div style="max-width: 600px;">
     <p>
       <v-icon>mdi-clock-check-outline</v-icon>
       {{ ChangeFormat(item.CreatedAt, 'yyyy/MM/dd HH:mm') }}
-      <v-icon>mdi-cached</v-icon>
+      <br class="d-sm-none d-flex">
+      <v-icon class="ml-sm-3">mdi-cached</v-icon>
       {{ ChangeFormat(item.UpdatedAt, 'yyyy/MM/dd HH:mm') }}
     </p>
     <p>ID: {{ item.ID }}</p>
     <ErrorMessages v-model="this.errorMessages" />
-    <v-form ref="form" v-model="valid" style="max-width: 600px;">
+    <v-form ref="form" v-model="valid">
       <slot name="form"></slot>
       <div
         class="my-4"
@@ -32,6 +33,7 @@
         </v-btn>
       </div>
     </v-form>
+    <slot name="btn"></slot>
   </div>
 </template>
 
@@ -104,7 +106,7 @@ export default {
         this.$adminHttp.request({
           method: 'delete',
           url: this.defaultUrl,
-          data: { DeleteItemIds: [ this.item.ID ] }
+          data: { SelectedItemIds: [ this.item.ID ] }
         })
         .then(response => {
           if (response.data != null) {
