@@ -110,6 +110,7 @@
               </v-icon>
               Delete items
             </v-btn>
+            <slot name="btn" v-bind:selectedItems="selectedItems"></slot>
             <v-spacer></v-spacer>
             <span class="d-none d-sm-flex mr-3 text-caption grey--text text--darken-3">
               viewing {{ viewingCount }} of {{ itemsTotalCount }} results
@@ -337,6 +338,14 @@ export default {
         this.$router.push({ query: query })
       }
     },
+    refleshTableData () {
+      const selectedItemIds = this.selectedItems.map(item => item.ID)
+      this.tableData = this.tableData.filter( function (item) {
+        return selectedItemIds.includes(item.ID) === false
+      })
+      this.itemsTotalCount -= this.selectedItems.length
+      this.selectedItems = []
+    },
     validation () {
       return this.$refs.form.validate() ? true : false
     },
@@ -397,26 +406,21 @@ export default {
         if (response.data != null) {
           console.log(response.data)
           this.setFlashMessage({
-            type: 'warning', message: 'Failed to delete quizzes'
+            type: 'warning', message: 'Failed to delete items'
           })
         } else {
-          this.tableData = this.tableData.filter( function (item) {
-            return selectedItemIds.includes(item.ID) === false
-          })
-          this.itemsTotalCount -= this.selectedItems.length
-          this.selectedItems = []
+          this.reflashTableData()
           this.setFlashMessage({
-            type: 'success', message: 'Remove quizzes successfully'
+            type: 'success', message: 'Delete items successfully'
           })
         }
         this.closeDelete()
       })
-      .catch((error) => {
-        console.log(error)
+      .catch(
         this.setFlashMessage({
-          type: 'warning', message: 'Failed to delete quizzes'
+          type: 'warning', message: 'Failed to delete items'
         })
-      })
+      )
     },
     pageTransition (item) {
       this.$router.push("/" + this.defaultPath + "/" + item.ID)

@@ -70,6 +70,7 @@
     <v-card v-if="showTable">
       <MyDataTable
         v-if="showTable"
+        ref="dataTable"
         :title="tableTitle"
         v-model="searchConditions"
         :defaultSearchConditions="defaultSearchConditions"
@@ -80,6 +81,17 @@
         :defaultItem="defaultItem"
         :updateEditedItem="updateEditedItem"
       >
+        <template v-slot:btn="slotProps">
+          <v-btn
+            small
+            outlined
+            color="error"
+            :disabled="!slotProps.selectedItems.length"
+            @click="removeQuizzes(slotProps.selectedItems)"
+          >
+            remove quizzes
+          </v-btn>
+        </template>
         <template v-slot:form>
           <MyTextarea
             v-model="editedItem.Question"
@@ -290,6 +302,27 @@ export default {
     },
     validation () {
       return this.$refs.form.validate() ? true : false
+    },
+    removeQuizzes(selectedItems) {
+      const selectedItemIds = selectedItems.map(item => item.ID)
+      this.$adminHttp.request({
+        method: 'delete',
+        url: `/admin/quiz_titles/${this.$route.params.id}/remove_quizzes`,
+        data: { SelectedItemIds: selectedItemIds }
+      })
+      .then(response => {
+        if (response.data != null) {
+          console.log(response.data)
+          this.setFlashMessage({
+            type: 'warning', message: 'Failed to delete items'
+          })
+        } else {
+          this.$refs.dataTable.refleshTableData()
+          this.setFlashMessage({
+            type: 'success', message: 'Remove quizzes successfully'
+          })          
+        }
+      })
     }
   }
 }
