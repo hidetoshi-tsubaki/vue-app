@@ -14,7 +14,7 @@ export default {
   },
   children: [
     {
-      path: 'index',
+      path: '',
       name: 'IndexQuiz',
       component: Index
     },
