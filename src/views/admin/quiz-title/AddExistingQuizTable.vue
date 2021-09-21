@@ -70,7 +70,11 @@
             multiple
             chips
             clearable
-            />
+          />
+          <my-checkbox
+            v-model="searchConditions.notLinkedToAnyQuizTitles"
+            label="Not linked to any Quiz Titles"
+          />
         </template>
       </MySearch>
       <v-data-table
@@ -149,11 +153,13 @@ import { mapActions } from 'vuex'
 import mixin from '../../../mixins/globalMethods.js'
 import MySearch from '../../../components/parts/search/MySearch'
 import MySelect from '../../../components/parts/form/MySelect'
+import MyCheckbox from '../../../components/parts/form/MyCheckbox'
 export default {
   name: 'MyDataTable',
   components: {
     MySearch,
     MySelect,
+    MyCheckbox
   },
   mixins: [mixin],
   props: {
@@ -171,6 +177,7 @@ export default {
     quizTitleOptionsForSearch: [],
     defaultSearchConditions: {
       page: 1,
+      notLinkedToAnyQuizTitles: false,
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
       selectedQuizTitleIDs: [],
@@ -184,6 +191,7 @@ export default {
     },
     searchConditions: {
       page: 1,
+      notLinkedToAnyQuizTitles: false,
       keywords: '',
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
@@ -264,10 +272,17 @@ export default {
     }
   },
   watch: {
+    'searchConditions.notLinkedToAnyQuizTitles': function (val) {
+      if (val === true) {
+        this.searchConditions.selectedQuizLevelIDs = []
+      }
+    },
     'searchConditions.selectedQuizLevelIDs': function (val) {
       if (val.length === 0) {
         this.searchConditions.selectedQuizSectionIDs = []
         this.searchConditions.selectedQuizTitleIDs = []
+      } else {
+        this.searchConditions.notLinkedToAnyQuizTitles = false
       }
     },
     'searchConditions.selectedQuizSectionIDs': function (val) {

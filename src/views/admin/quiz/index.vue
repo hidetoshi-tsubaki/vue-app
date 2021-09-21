@@ -274,13 +274,6 @@ export default {
     'searchConditions.selectedQuizSectionIDs': function (val) {
       if (val.length === 0) {
         this.searchConditions.selectedQuizTitleIDs = []
-      } else {
-        this.searchConditions.notLinkedToAnyQuizTitles = false
-      }
-    },
-    'searchConditions.selectedQuizTitleIDs': function (val) {
-      if (val.length != 0) {
-        this.searchConditions.notLinkedToAnyQuizTitles = false
       }
     },
     'editedItem.QuizLevelID': function (val) {
