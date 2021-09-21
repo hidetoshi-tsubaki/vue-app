@@ -52,25 +52,21 @@ export default {
       .then(response => response.data)
     },
     SetCategoryOptionsForSelect (url, targetOptions, IDs) {
-      if (IDs.length === 0) {
+      if (!this.HasAnyValue(IDs)) {
         this[targetOptions] = []
-        return
+      } else {
+        this.GetCategoryOptions(url, IDs)
+        .then(data => {
+          if (data.ErrorMessages != null) {
+            console.log(data.ErrorMessages)
+            store.dispatch('flashMessage/set', {
+              type: 'warning',
+              message: 'Failed to get data ...'
+            })
+          }
+          this[targetOptions] = data
+        })
       }
-      this.GetCategoryOptions(url, IDs)
-      .then(data => {
-        if (data.ErrorMessages != null) {
-          console.log(data.ErrorMessages)
-          store.dispatch('flashMessage/set', {
-            type: 'warning',
-            message: 'Failed to get data ...'
-          })
-        }
-        this[targetOptions] = data
-      })
-    },
-    SetQueryParamsFromSearchConditions (searchConditions) {
-      const query = this.RemoveEmptyValue(searchConditions)
-      this.$router.push({ query: query })
     },
     MakeQueryStringFromSearchConditions () {
       const queryString = Object.keys(this.searchConditions)
@@ -79,31 +75,21 @@ export default {
       .join('&')
       return queryString
     },
-    ParseQueryAndSetSearchConditions () {
-      const params = this.$route.query
-      let queryParams = Object.assign({}, params)
-      const selectedIDsKeys = [
-        'selectedQuizLevelIDs',
-        'selectedQuizSectionIDs',
-        'selectedQuizTitleIDs',
-      ]
-      selectedIDsKeys.forEach(key => {
-        if (Array.isArray(queryParams[key])) {
-          queryParams[key] = queryParams[key].map(Number)
-        } else if (queryParams[key] != null){
-          queryParams[key] = [Number(queryParams[key])]
-        }
-      })
-      const paginationKeys = ["page", "pageSize"]
-      paginationKeys.forEach(key => {
-        queryParams[key] = Number(queryParams[key])
-      })
-      Object.assign(this.searchConditions, queryParams)
-    },
     setInitialOptionsForSearchSelect(url, target, ids) {
         if (this[target].length === 0 && ids.length > 0) {
           this.SetCategoryOptionsForSelect(url, target, ids)
         }
+    },
+    IsFormValuesChanged(formValuesBeforeEdit, formValues, formKeys) {
+      var result = false
+  
+      formKeys.forEach(key => {
+        if (formValuesBeforeEdit[key] != formValues[key]) {
+          result = true
+        }
+      })
+  
+      return result
     }
   }
 }

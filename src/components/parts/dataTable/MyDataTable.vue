@@ -282,35 +282,59 @@ export default {
     ...mapActions({ setFlashMessage: 'flashMessage/set' }),
     fetchData () {
       const params = this.$route.query
+      var path
+      this.parseQueryAndSetSearchConditions()
       if (Object.keys(params).length) {
         this.loading = true
-        this.ParseQueryAndSetSearchConditions()
         const queryString = this.MakeQueryStringFromSearchConditions()
-        const path = this.defaultPath + '?' + queryString
-        this.$adminHttp.get(path)
-        .then(response => {
-          if (response.data.ErrorMessages != null) {
-            console.log(response.data.ErrorMessages)
-            this.setFlashMessage({
-              type: 'warning',
-              message: 'Failed to fetch data ...'
-            })
-          } else {
-            this.page = this.searchConditions.page
-            this.pageSize = this.searchConditions.pageSize
-            this.tableData = response.data.TableData
-            this.itemsTotalCount = response.data.ItemsTotalCount
-            this.initQuizLevels(response.data.QuizLevels)
-          }
-          this.loading = false
-        })
-        .catch(() => {
-          this.loading = false
-        })
+        path = this.defaultPath + '?' + queryString
       } else {
-        this.searchConditions = Object.assign({}, this.defaultSearchConditions)
-        this.SetQueryParamsFromSearchConditions(this.defaultSearchConditions)
+        path = this.defaultPath + '?page=1&PageSize=50'
+        this.searchConditions = { ...this.defaultSearchConditions }
       }
+      this.$adminHttp.get(path)
+      .then(response => {
+        if (response.data.ErrorMessages != null) {
+          console.log(response.data.ErrorMessages)
+          this.setFlashMessage({
+            type: 'warning',
+            message: 'Failed to fetch data ...'
+          })
+        } else {
+          this.page = this.searchConditions.page
+          this.pageSize = this.searchConditions.pageSize
+          this.tableData = response.data.TableData
+          this.itemsTotalCount = response.data.ItemsTotalCount
+          this.initQuizLevels(response.data.QuizLevels)
+        }
+        this.loading = false
+      })
+      .catch(() => {
+        this.loading = false
+      })
+    },
+    parseQueryAndSetSearchConditions () {
+      const params = this.$route.query
+      let queryParams = Object.assign({}, params)
+      const selectedIDsKeys = [
+        'selectedQuizLevelIDs',
+        'selectedQuizSectionIDs',
+        'selectedQuizTitleIDs',
+      ]
+      selectedIDsKeys.forEach(key => {
+        if (Array.isArray(queryParams[key])) {
+          queryParams[key] = queryParams[key].map(Number)
+        } else if (queryParams[key] != null){
+          queryParams[key] = [Number(queryParams[key])]
+        }
+      })
+      const paginationKeys = ["page", "pageSize"]
+      paginationKeys.forEach(key => {
+        queryParams[key] = Number(queryParams[key])
+      })
+      var condition = { ...this.defaultSearchConditions }
+      condition = Object.assign(condition, queryParams)
+      this.searchConditions = Object.assign(this.searchConditions, condition)
     },
     editItem (item) {
       this.updateEditedItem(item)

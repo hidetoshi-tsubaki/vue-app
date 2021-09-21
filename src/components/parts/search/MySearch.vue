@@ -19,7 +19,7 @@
       label="Keyword"
     />
     <div style="max-width: 600px;">
-      <slot name="selectCategory"></slot>
+      <slot name="searchForm"></slot>
     </div>
     <v-row class="mt-0 mb-3">
       <v-col cols="12" sm="6">
@@ -71,11 +71,8 @@
       <v-btn
         color="primary"
         small
-        @click="Search(searchConditions, searchUrl, 1)"
+        @click="action(searchConditions, 1)"
       >
-        <v-icon left>
-          mdi-magnify
-        </v-icon>
         Search
       </v-btn>
     </v-card-actions>
@@ -102,10 +99,9 @@ export default {
       type: Object,
       required: true
     },
-    url: {
-      type: String,
-      required: true
-    },
+    searchFunc: {
+      type: Function
+    }
   },
   computed: {
     searchConditions: {
@@ -115,16 +111,17 @@ export default {
       set(value) {
         this.$emit("input", value)
       }
-    },
-    searchUrl () {
-      return this.url + "/search"
     }
   },
   methods: {
-    Search (searchConditions, url, page) {
+    action (searchConditions, page) {
       searchConditions.page = page
       searchConditions = this.RemoveEmptyValue(searchConditions)
-      this.$router.push({ query: searchConditions })
+      if (this.searchFunc) {
+        this.searchFunc(searchConditions)
+      } else {
+        this.$router.push({ query: searchConditions })
+      }
     },
     ClearSearchConditions() {
       if (window.confirm("Are you sure you wnat to clear 'All' search conditions")) {
