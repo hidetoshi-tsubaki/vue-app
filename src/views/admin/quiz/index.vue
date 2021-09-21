@@ -51,7 +51,11 @@
         multiple
         chips
         clearable
-        />
+      />
+      <my-checkbox
+        v-model="searchConditions.notLinkedToAnyQuizTitles"
+        label="Not linked to any Quiz Titles"
+      />
     </template>
     <template v-slot:form="slotProps">
       <div v-if="slotProps.editedIndex === -1">
@@ -129,13 +133,15 @@ import MyDataTable from '../../../components/parts/dataTable/MyDataTable'
 import MySelect from '../../../components/parts/form/MySelect'
 import MyInput from '../../../components/parts/form/MyInput'
 import MyTextarea from '../../../components/parts/form/MyTextarea'
+import MyCheckbox from '../../../components/parts/form/MyCheckbox'
 export default {
   name: 'IndexQuizTitles',
   components: {
     MyDataTable,
     MySelect,
     MyInput,
-    MyTextarea
+    MyTextarea,
+    MyCheckbox
   },
   mixins: [mixin],
   data: () => ({
@@ -224,6 +230,7 @@ export default {
     quizTitleOptionsForSearch: [],
     defaultSearchConditions: {
       page: 1,
+      notLinkedToAnyQuizTitles: false,
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
       selectedQuizTitleIDs: [],
@@ -237,6 +244,7 @@ export default {
     },
     searchConditions: {
       page: 1,
+      notLinkedToAnyQuizTitles: false,
       keywords: '',
       selectedQuizLevelIDs: [],
       selectedQuizSectionIDs: [],
@@ -250,15 +258,29 @@ export default {
     }
   }),
   watch: {
+    'searchConditions.notLinkedToAnyQuizTitles': function (val) {
+      if (val === true) {
+        this.searchConditions.selectedQuizLevelIDs = []
+      }
+    },
     'searchConditions.selectedQuizLevelIDs': function (val) {
       if (val.length === 0) {
         this.searchConditions.selectedQuizSectionIDs = []
         this.searchConditions.selectedQuizTitleIDs = []
+      } else {
+        this.searchConditions.notLinkedToAnyQuizTitles = false
       }
     },
     'searchConditions.selectedQuizSectionIDs': function (val) {
       if (val.length === 0) {
         this.searchConditions.selectedQuizTitleIDs = []
+      } else {
+        this.searchConditions.notLinkedToAnyQuizTitles = false
+      }
+    },
+    'searchConditions.selectedQuizTitleIDs': function (val) {
+      if (val.length != 0) {
+        this.searchConditions.notLinkedToAnyQuizTitles = false
       }
     },
     'editedItem.QuizLevelID': function (val) {
