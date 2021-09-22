@@ -42,104 +42,112 @@
         class="mytable"
       >
         <template v-slot:top>
-          <v-toolbar flat class="mb-4">
-            <v-dialog
-              v-model="dialog"
-              max-width="600px"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn
-                  small
-                  color="primary"
-                  v-bind="attrs"
-                  v-on="on"
-                  class="mr-4"
-                >
-                  New
-                </v-btn>
-              </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }} {{ title }}</span>
-                </v-card-title>
-                <v-card-text>
-                  <v-container>
-                    <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
-                    <v-form ref="form">
-                      <slot name="form" v-bind:editedIndex="editedIndex" ></slot>
-                    </v-form>
-                  </v-container>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
+          <div
+            class="d-flex flex-column-reverse flex-md-row justify-space-between my-6 mx-2">
+            <div class="d-flex flex-wrap justify-start table-action">
+              <v-dialog
+                v-model="dialog"
+                max-width="600px"
+              >
+                <template v-slot:activator="{ on, attrs }">
                   <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
+                    small
+                    color="primary"
+                    v-bind="attrs"
+                    v-on="on"
+                    class="mr-4 mb-3 mb-md-0"
                   >
-                    Cancel
+                    New
                   </v-btn>
-                  <v-btn
-                    v-if="editedIndex != -1"
-                    color="blue darken-1"
-                    text
-                    @click="update"
-                  >
-                    Update
-                  </v-btn>
-                  <v-btn
-                    v-if="editedIndex === -1"
-                    color="blue darken-1"
-                    text
-                    @click="create"
-                  >
-                    create
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-            <v-btn
-              small
-              color="error"
-              @click="deleteItems"
-              :disabled="!deleteBtn"
-              class="mr-4"
-            >
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">{{ formTitle }} {{ title }}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <ErrorMessages :errorMessages=errorMessages></ErrorMessages>
+                      <v-form ref="form">
+                        <slot name="form" v-bind:editedIndex="editedIndex" ></slot>
+                      </v-form>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="close"
+                    >
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      v-if="editedIndex != -1"
+                      color="blue darken-1"
+                      text
+                      @click="update"
+                    >
+                      Update
+                    </v-btn>
+                    <v-btn
+                      v-if="editedIndex === -1"
+                      color="blue darken-1"
+                      text
+                      @click="create"
+                    >
+                      create
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-btn
+                small
+                color="error"
+                @click="deleteItems"
+                :disabled="!deleteBtn"
+                class="mr-4 mb-3 mb-md-0"
+              >
               <v-icon left>
                 mdi-trash-can-outline
               </v-icon>
-              Delete items
-            </v-btn>
-            <slot name="btn" v-bind:selectedItems="selectedItems"></slot>
-            <v-spacer></v-spacer>
-            <span class="d-none d-sm-flex mr-3 text-caption grey--text text--darken-3">
-              viewing {{ viewingCount }} of {{ itemsTotalCount }} results
-            </span>
-            <span class="d-none d-sm-flex text-caption font-weight-bold grey--text text--darken-2">
-              Page Size
-            </span>
-            <span class="d-none d-sm-flex ml-2" style="width: 65px;">
-              <MySelect
-                v-model="searchConditions.pageSize"
-                :items="[10, 20, 30, 50, 70, 100]"
-                required
-                dense
-                hide-details
-                @change="changePageSize()"
-              />
-            </span>
-            <v-dialog v-model="dialogDelete" max-width="600px">
-              <v-card>
-                <v-card-title class="text-h5">Are you sure you want to delete those items?</v-card-title>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-                  <v-btn color="blue darken-1" text @click="deleteItemsConfirm(defaultPath)">OK</v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-          </v-toolbar>
+                Delete items
+              </v-btn>
+              <v-dialog
+                v-model="dialogDelete"
+                max-width="600px"
+              >
+                <v-card>
+                  <v-card-title class="text-h5">Are you sure you want to delete those items?</v-card-title>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+                    <v-btn color="blue darken-1" text @click="deleteItemsConfirm(defaultPath)">OK</v-btn>
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <slot name="btn" v-bind:selectedItems="selectedItems"></slot>
+            </div>
+            <div class="d-flex flex-wrap md-justify-end mb-3 mb-md-0 table-info">
+              <p class="d-flex mb-0 mr-3 text-caption text-sm-body-1 grey--text text--darken-3">
+                viewing {{ viewingCount }} of {{ itemsTotalCount }} results
+              </p>
+              <v-divider vertical class="d-none d-sm-block mr-2"></v-divider>
+              <p class="d-flex mb-0 text-caption text-sm-body-1 grey--text text--darken-2 page-size">
+                PageSize
+                <span class="pageSize ml-2" style="width: 65px;">
+                  <MySelect
+                    v-model="searchConditions.pageSize"
+                    :items="[10, 20, 30, 50, 70, 100]"
+                    required
+                    dense
+                    hide-details
+                    @change="changePageSize()"
+                  />
+                </span>
+              </p>
+            </div>
+          </div>
         </template>
         <template v-slot:item.CreatedAt="{ item }" v-slot:activator="{ChangeFormat}">
           {{ ChangeFormat(item.CreatedAt, 'yyyy/MM/dd HH:mm') }}
@@ -453,12 +461,19 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .mytable .text-start, .v-application--is-ltr .mytable .v-data-table__mobile-row__cell{
   max-width: 180px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+.mytable .table-info, .mytable .table-action, .mytable .page-size {
+  align-items: center;
+}
+
+.mytable .pageSize .v-select {
+  padding-bottom: 8px;
 }
 
 </style>

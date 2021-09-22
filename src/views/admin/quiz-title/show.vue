@@ -86,6 +86,7 @@
             small
             outlined
             color="error"
+            class="mb-3 mb-md-0"
             :disabled="!slotProps.selectedItems.length"
             @click="removeQuizzes(slotProps.selectedItems)"
           >
