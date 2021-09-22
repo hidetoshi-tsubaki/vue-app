@@ -21,6 +21,7 @@ export default {
     type: { type: String, default: 'text' },
     rows: { type: String, default: "5" },
     height: { type: String, default: "30" },
+    required: { type: Boolean, default: false },
     max: { type: Number }
   },
   computed: {

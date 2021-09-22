@@ -54,6 +54,9 @@
           <v-list-item to="/admin/quiz_titles">
             <v-list-item-title>Quiz Titles</v-list-item-title>
           </v-list-item>
+          <v-list-item to="/admin/quizzes">
+            <v-list-item-title>Quizzes</v-list-item-title>
+          </v-list-item>
           <v-list-item to="/admin/setting">
             <v-list-item-title>Setting</v-list-item-title>
           </v-list-item>

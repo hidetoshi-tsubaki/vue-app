@@ -19,16 +19,12 @@
 import Header from './components/globals/Header'
 import Footer from './components/globals/Footer'
 import FlashMessage from './components/globals/FlashMessage'
-import { mapActions } from 'vuex'
 export default {
   name: 'App',
   components: {
     Header,
     Footer,
     FlashMessage
-  },
-  methods: {
-    ...mapActions({ setFlashMessage: 'flashMessage/setFlashMessage' })
   }
 };
 </script>

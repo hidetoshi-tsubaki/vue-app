@@ -8,7 +8,6 @@
     linkName="showQuizLevel"
     :editedItem.sync="editedItem"
     :defaultItem="defaultItem"
-    :initQuizLevels="initQuizLevels"
     :updateEditedItem="updateEditedItem"
   >
     <template v-slot:form>
